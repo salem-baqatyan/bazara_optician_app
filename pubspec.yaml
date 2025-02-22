@@ -44,6 +44,7 @@ dependencies:
   day_night_time_picker: 
   flutter_native_contact_picker: 
   permission_handler: 
+  dotted_border: ^2.1.0
 
 dev_dependencies:
   flutter_test:

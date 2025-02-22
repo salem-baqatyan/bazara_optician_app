@@ -1,0 +1,24 @@
+import 'package:bazara_optician_app/core/styles/Colors.dart';
+import 'package:bazara_optician_app/core/styles/text_style.dart';
+import 'package:flutter/material.dart';
+
+class RequiredText extends StatelessWidget {
+  final String title;
+  const RequiredText({super.key, required this.title});
+
+  @override
+  Widget build(BuildContext context) {
+    return Text.rich(
+      TextSpan(
+        text: title,
+        style: KTextStyle.textStyle13.copyWith(color: AppColors.greyLight),
+        children: <TextSpan>[
+          TextSpan(
+            text: ' *',
+            style: KTextStyle.textStyle13.copyWith(color: AppColors.primary),
+          ),
+        ],
+      ),
+    );
+  }
+}

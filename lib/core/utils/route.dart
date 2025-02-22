@@ -1,5 +1,5 @@
 import 'package:bazara_optician_app/features/home_screen.dart';
-import 'package:bazara_optician_app/features/second_features/test.dart';
+import 'package:bazara_optician_app/features/second_features/widgets/test.dart';
 import 'package:flutter/material.dart';
 
 class RouteName {

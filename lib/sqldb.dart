@@ -17,26 +17,75 @@ class SqlDb extends ChangeNotifier {
   intialDb() async {
     String databasepath = await getDatabasesPath();
     String path = join(databasepath, 'database.db');
-    Database mydb = await openDatabase(path,
-        onCreate: _onCreate, version: 2, onUpgrade: _onUpgrade);
+    Database mydb = await openDatabase(
+      path,
+      onCreate: _onCreate,
+      version: 2,
+      onUpgrade: _onUpgrade,
+    );
     return mydb;
   }
 
   _onCreate(Database db, int version) async {
     Batch batch = db.batch();
     batch.execute('''
-      CREATE TABLE "Groups" (
+      CREATE TABLE "ClientOptometry" (
         "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, 
-        "time" TEXT, 
-        "active" INTEGER NOT NULL)
+        "name" TEXT, 
+        "phone" TEXT,
+
+        "price" TEXT,
+        "exam_date" TEXT,
+        "review_date" TEXT,
+
+        "dist_R_SPH" TEXT, 
+        "dist_R_CYL" TEXT,
+        "dist_R_AXIS" TEXT,
+        "dist_R_V.A" TEXT,
+        "dist_L_SPH" TEXT, 
+        "dist_L_CYL" TEXT,
+        "dist_L_AXIS" TEXT,
+        "dist_L_V.A" TEXT,
+
+        "near_R_SPH" TEXT, 
+        "near_R_CYL" TEXT,
+        "near_R_AXIS" TEXT,
+        "near_R_V.A" TEXT,
+        "near_L_SPH" TEXT, 
+        "near_L_CYL" TEXT,
+        "near_L_AXIS" TEXT,
+        "near_L_V.A" TEXT,
+        
+        "L.P.D" TEXT,
+        "DR" TEXT
+
+        )
 ''');
     batch.execute('''
-      CREATE TABLE "Contacts" (
+      CREATE TABLE "ClientPurchases" (
         "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, 
-        "group_id" INTEGER NOT NULL, 
         "name" TEXT, 
-        "phone" TEXT, 
-        "active" INTEGER NOT NULL)
+        "phone" TEXT,
+
+        "frame_type" TEXT,
+        "frame_model" TEXT,
+        "total_price" TEXT,
+        "paid_price" TEXT,
+        "remaining_price" TEXT,
+        "invoice_date" TEXT,
+        "delvery_date" TEXT,
+
+        "R_SPH" TEXT, 
+        "R_CYL" TEXT,
+        "R_AXIS" TEXT,
+        "R_ADD" TEXT,
+        "R_CLR" TEXT,
+        "L_SPH" TEXT, 
+        "L_CYL" TEXT,
+        "L_AXIS" TEXT,
+        "L_ADD" TEXT,
+        "L_CLR" TEXT
+        )
 ''');
     await batch.commit();
     print('Create Database and Table ====================');
