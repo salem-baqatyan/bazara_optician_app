@@ -1,6 +1,10 @@
 import 'package:bazara_optician_app/core/shered_widget/custom_app_bar.dart';
 import 'package:bazara_optician_app/core/styles/Colors.dart';
-import 'package:bazara_optician_app/features/second_features/screens/new_invoice_screen.dart';
+import 'package:bazara_optician_app/features/calendar_dates_features/calender_dates_screen.dart';
+import 'package:bazara_optician_app/features/invoice_reports_features/invoice_reports_screen.dart';
+import 'package:bazara_optician_app/features/main_menu_features/backup.dart';
+import 'package:bazara_optician_app/features/main_menu_features/pdf.dart';
+import 'package:bazara_optician_app/features/new_invoice_features/screens/new_invoice_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
@@ -16,20 +20,21 @@ class MainMenuScreen extends StatelessWidget {
         "page": NewInvoiceScreen(),
       },
       {
-        "title": 'التحقق من مواعيد المراجعة',
+        "title": 'التحقق من مواعيد في التقويم',
         "icon": Icons.calendar_month,
-        "page": 'Root(myIndex: 0)',
+        "page": CalenderDatesScreen(),
       },
       {
         "title": 'تسويق الى العملاء',
         "icon": Icons.shopping_cart,
-        "page": 'Root(myIndex: 0)',
+        "page": PdfPrinterScreen(),
       },
       {
         "title": 'تقارير الفواتير',
         "icon": Icons.receipt_long,
-        "page": 'Root(myIndex: 0)',
+        "page": InvoiceReportsScreen(),
       },
+      {"title": 'نسخة الاحتياطية', "icon": Icons.backup, "page": Backup()},
     ];
     return SafeArea(
       child: Scaffold(

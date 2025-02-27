@@ -1,17 +1,17 @@
-import 'package:bazara_optician_app/features/second_features/widgets/custom_radio_widget.dart';
-import 'package:bazara_optician_app/features/second_features/widgets/section_title_widget.dart';
+import 'package:bazara_optician_app/core/shered_widget/custom_radio_widget.dart';
+import 'package:bazara_optician_app/core/shered_widget/section_title_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class TypeRadioWidget extends StatelessWidget {
   final String? selectedOption;
-  final void Function(String?)? onChangedDiscount;
-  final void Function(String?)? onChangedBouns;
+  final void Function(String?)? onChangedOptometry;
+  final void Function(String?)? onChangedPurchases;
   const TypeRadioWidget({
     super.key,
     required this.selectedOption,
-    this.onChangedDiscount,
-    this.onChangedBouns,
+    this.onChangedOptometry,
+    this.onChangedPurchases,
   });
 
   @override
@@ -25,13 +25,13 @@ class TypeRadioWidget extends StatelessWidget {
           title: 'فحص نظر',
           value: 'Optometry',
           selectedOption: selectedOption,
-          onChanged: onChangedDiscount,
+          onChanged: onChangedOptometry,
         ),
         CustomRadioWidget(
           title: 'نظارة جديدة',
           value: 'Purchases',
           selectedOption: selectedOption,
-          onChanged: onChangedBouns,
+          onChanged: onChangedPurchases,
         ),
       ],
     );

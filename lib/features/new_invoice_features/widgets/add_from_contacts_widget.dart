@@ -32,7 +32,7 @@ class AddFromContactsWidget extends StatelessWidget {
                     Icon(Icons.add, size: 75.sp, color: AppColors.greenDark),
                     Text(
                       'أضافة من جهات الاتصال',
-                      style: KTextStyle.textStyle10.copyWith(
+                      style: KTextStyle.textStyle9.copyWith(
                         color: AppColors.blackDark,
                       ),
                     ),

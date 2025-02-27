@@ -34,31 +34,29 @@ class SqlDb extends ChangeNotifier {
         "name" TEXT, 
         "phone" TEXT,
 
-        "price" TEXT,
-        "exam_date" TEXT,
-        "review_date" TEXT,
-
         "dist_R_SPH" TEXT, 
         "dist_R_CYL" TEXT,
         "dist_R_AXIS" TEXT,
-        "dist_R_V.A" TEXT,
+        "dist_R_V_A" TEXT,
         "dist_L_SPH" TEXT, 
         "dist_L_CYL" TEXT,
         "dist_L_AXIS" TEXT,
-        "dist_L_V.A" TEXT,
+        "dist_L_V_A" TEXT,
 
         "near_R_SPH" TEXT, 
         "near_R_CYL" TEXT,
         "near_R_AXIS" TEXT,
-        "near_R_V.A" TEXT,
+        "near_R_V_A" TEXT,
         "near_L_SPH" TEXT, 
         "near_L_CYL" TEXT,
         "near_L_AXIS" TEXT,
-        "near_L_V.A" TEXT,
+        "near_L_V_A" TEXT,
         
-        "L.P.D" TEXT,
-        "DR" TEXT
+        "L_P_D" TEXT,
+        "DR" TEXT,
 
+        "invoice_date" TEXT,
+        "review_date" TEXT
         )
 ''');
     batch.execute('''
@@ -66,15 +64,8 @@ class SqlDb extends ChangeNotifier {
         "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, 
         "name" TEXT, 
         "phone" TEXT,
-
         "frame_type" TEXT,
         "frame_model" TEXT,
-        "total_price" TEXT,
-        "paid_price" TEXT,
-        "remaining_price" TEXT,
-        "invoice_date" TEXT,
-        "delvery_date" TEXT,
-
         "R_SPH" TEXT, 
         "R_CYL" TEXT,
         "R_AXIS" TEXT,
@@ -84,9 +75,22 @@ class SqlDb extends ChangeNotifier {
         "L_CYL" TEXT,
         "L_AXIS" TEXT,
         "L_ADD" TEXT,
-        "L_CLR" TEXT
-        )
+        "L_CLR" TEXT,
+        "total_price" TEXT,
+        "paid_price" TEXT,
+        "remaining_price" TEXT,
+        "invoice_date" TEXT,
+        "delvery_date" TEXT)
 ''');
+    batch.execute('''
+    CREATE TABLE "Events" (
+      "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+      "id_invoice" INTEGER,
+      "event_name" TEXT,
+      "date_invoice" TEXT,
+      "type_invoice" TEXT
+    )
+  ''');
     await batch.commit();
     print('Create Database and Table ====================');
   }

@@ -4,7 +4,8 @@ import 'package:flutter/material.dart';
 
 class RequiredText extends StatelessWidget {
   final String title;
-  const RequiredText({super.key, required this.title});
+  final bool? unRequired;
+  const RequiredText({super.key, required this.title, this.unRequired = false});
 
   @override
   Widget build(BuildContext context) {
@@ -13,10 +14,14 @@ class RequiredText extends StatelessWidget {
         text: title,
         style: KTextStyle.textStyle13.copyWith(color: AppColors.greyLight),
         children: <TextSpan>[
-          TextSpan(
-            text: ' *',
-            style: KTextStyle.textStyle13.copyWith(color: AppColors.primary),
-          ),
+          unRequired == true
+              ? TextSpan()
+              : TextSpan(
+                text: ' *',
+                style: KTextStyle.textStyle13.copyWith(
+                  color: AppColors.primary,
+                ),
+              ),
         ],
       ),
     );

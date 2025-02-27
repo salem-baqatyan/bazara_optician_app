@@ -4,13 +4,15 @@ import 'package:flutter/material.dart';
 
 class SectionTitleWidget extends StatelessWidget {
   final String title;
-  const SectionTitleWidget({super.key, required this.title});
+  final TextStyle? style;
+  const SectionTitleWidget({super.key, required this.title, this.style});
 
   @override
   Widget build(BuildContext context) {
     return Text(
       title,
-      style: KTextStyle.textStyle14.copyWith(color: AppColors.blackLight),
+      style:
+          style ?? KTextStyle.textStyle14.copyWith(color: AppColors.blackLight),
     );
   }
 }

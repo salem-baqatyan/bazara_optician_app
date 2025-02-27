@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class ActionButtonWidget extends StatelessWidget {
-  final String iconPath;
+  final IconData iconPath;
   final String title;
   final bool? isSolid;
   final double? width;
@@ -42,7 +42,7 @@ class ActionButtonWidget extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Icon(
-              Icons.add_alarm,
+              iconPath,
               color: isSolid == false ? AppColors.primary : AppColors.white,
               size: 25.w,
             ),

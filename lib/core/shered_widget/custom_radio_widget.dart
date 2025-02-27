@@ -18,18 +18,16 @@ class CustomRadioWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
-      child: RadioListTile<String>(
-        title: Text(
-          title,
-          style: KTextStyle.textStyle13.copyWith(color: AppColors.greyLight),
-        ),
-        value: value,
-        groupValue: selectedOption,
-        onChanged: onChanged,
-        activeColor: AppColors.primary,
-        visualDensity: VisualDensity(horizontal: 0, vertical: -4),
+    return RadioListTile<String>(
+      title: Text(
+        title,
+        style: KTextStyle.textStyle13.copyWith(color: AppColors.greyLight),
       ),
+      value: value,
+      groupValue: selectedOption,
+      onChanged: onChanged,
+      activeColor: AppColors.primary,
+      visualDensity: VisualDensity(horizontal: 0, vertical: -4),
     );
   }
 }
