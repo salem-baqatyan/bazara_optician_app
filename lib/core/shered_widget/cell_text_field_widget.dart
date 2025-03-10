@@ -49,7 +49,7 @@ class CellTextFieldWidget extends StatelessWidget {
       padding: EdgeInsets.all(7),
       child: TextFormField(
         controller: controller,
-        keyboardType: TextInputType.number,
+        keyboardType: TextInputType.phone,
         style: KTextStyle.textStyle13.copyWith(color: AppColors.blackDark),
         decoration: InputDecoration(
           contentPadding: EdgeInsets.only(bottom: 15.h),

@@ -194,7 +194,7 @@ class InvoiceOptometryWidget extends StatelessWidget {
               child: InfoHintFieldWidget(
                 label: 'L.P.D',
                 controller: L_P_D, //L_P_D
-                keyboardType: TextInputType.number,
+                keyboardType: TextInputType.phone,
               ),
             ),
             SizedBox(width: 10.w),
@@ -202,7 +202,7 @@ class InvoiceOptometryWidget extends StatelessWidget {
               child: InfoHintFieldWidget(
                 label: 'DR',
                 controller: DR, //DR
-                keyboardType: TextInputType.number,
+                keyboardType: TextInputType.text,
               ),
             ),
           ],

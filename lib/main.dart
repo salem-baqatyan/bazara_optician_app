@@ -1,5 +1,7 @@
 import 'package:bazara_optician_app/core/provider/event_provider.dart';
 import 'package:bazara_optician_app/core/utils/route.dart';
+import 'package:bazara_optician_app/core/utils/route.dart';
+import 'package:bazara_optician_app/notification_service.dart';
 import 'package:bazara_optician_app/sqldb.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -9,10 +11,16 @@ import 'package:provider/provider.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await SqlDb().intialDb();
+  await NotificationService.initialize(); // ✅ تهيئة الإشعارات
+  SqlDb sqlDb = SqlDb(); // إنشاء كائن لقاعدة البيانات
+  await sqlDb.intialDb(); // تهيئة قاعدة البيانات
+
   runApp(
     MultiProvider(
-      providers: [ChangeNotifierProvider(create: (_) => EventProvider())],
+      providers: [
+        ChangeNotifierProvider(create: (_) => EventProvider()),
+        ChangeNotifierProvider(create: (_) => sqlDb), // 🔹 إضافة SqlDb كمزود
+      ],
       child: MyApp(),
     ),
   );
@@ -21,7 +29,6 @@ void main() async {
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
-  // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
     return ScreenUtilInit(
@@ -29,17 +36,14 @@ class MyApp extends StatelessWidget {
       minTextAdapt: true,
       splitScreenMode: true,
       builder:
-          (context, child) => MaterialApp(
-            initialRoute: "/",
-            onGenerateRoute: AppRoute.routeApp,
+          (context, child) => MaterialApp.router(
+            routerConfig: AppRouter.router,
             theme: ThemeData(
               textTheme: GoogleFonts.cairoTextTheme(
                 Theme.of(context).textTheme,
               ),
               useMaterial3: false,
-              scaffoldBackgroundColor: const Color(
-                0xfffffbfb,
-              ), // Set default background color
+              scaffoldBackgroundColor: const Color(0xfffffbfb), // لون الخلفية
             ),
             localizationsDelegates: [
               GlobalMaterialLocalizations.delegate,
@@ -47,7 +51,7 @@ class MyApp extends StatelessWidget {
               GlobalCupertinoLocalizations.delegate,
             ],
             supportedLocales: const [
-              Locale('ar', 'AR'), // Arabic, no country code
+              Locale('ar', 'AR'), // اللغة العربية
             ],
             locale: const Locale('ar', 'AR'),
             debugShowCheckedModeBanner: false,

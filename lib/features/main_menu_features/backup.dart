@@ -1,82 +1,63 @@
+import 'package:bazara_optician_app/core/shered_widget/action_button_widget.dart';
+import 'package:bazara_optician_app/core/shered_widget/custom_app_bar.dart';
+import 'package:bazara_optician_app/core/styles/Colors.dart';
+import 'package:bazara_optician_app/sqldb.dart';
 import 'package:flutter/material.dart';
-import 'package:sqflite/sqflite.dart';
-import 'package:path/path.dart';
-import 'package:path_provider/path_provider.dart';
-// import 'package:file_picker/file_picker.dart';
-import 'dart:io';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:provider/provider.dart';
+import 'package:permission_handler/permission_handler.dart';
 
-class Backup extends StatelessWidget {
+class BackupScreen extends StatelessWidget {
+  const BackupScreen({super.key});
+
+  Future<void> requestPermissions() async {
+    await Permission.storage.request();
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: Text('Backup and Restore Database')),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            ElevatedButton(
-              onPressed: () {
-                backupDatabase();
-              },
-              child: Text('عمل نسخة احتياطية'),
-            ),
-            SizedBox(height: 20),
-            ElevatedButton(
-              onPressed: () {
-                // restoreDatabase();
-              },
-              child: Text('استعادة النسخة الاحتياطية'),
-            ),
-          ],
+    final sqlDb = Provider.of<SqlDb>(context, listen: false);
+
+    return SafeArea(
+      child: Scaffold(
+        body: Container(
+          color: AppColors.transparent,
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.start,
+            children: [
+              CustomAppBar(tital: 'إدارة النسخ الاحتياطي'),
+              Expanded(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    ActionButtonWidget(
+                      isSolid: true,
+                      iconPath: Icons.backup,
+                      title: 'عمل نسخة احتياطية',
+                      width: 200.w,
+                      onTap: () async {
+                        await requestPermissions();
+                        await sqlDb.backupDatabase();
+                      },
+                    ),
+                    SizedBox(height: 20),
+                    ActionButtonWidget(
+                      isSolid: false,
+                      iconPath: Icons.restore,
+                      title: 'استعادة النسخة الاحتياطية',
+                      width: 200.w,
+                      onTap: () async {
+                        await requestPermissions();
+                        await sqlDb.restoreDatabase();
+                      },
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
   }
-
-  Future<String> getDatabasePath() async {
-    Directory documentsDirectory = await getApplicationDocumentsDirectory();
-    return join(documentsDirectory.path, "my_database.db");
-  }
-
-  Future<String?> pickBackupLocation() async {
-    // String? path = await FilePicker.platform.getDirectoryPath();
-    // return path;
-  }
-
-  Future<void> backupDatabase() async {
-    String dbPath = await getDatabasePath();
-    File dbFile = File(dbPath);
-
-    String? backupDir = await pickBackupLocation();
-    if (backupDir != null) {
-      String backupPath = join(backupDir, "backup_my_database.db");
-      await dbFile.copy(backupPath);
-      print('Backup successful: $backupPath');
-    } else {
-      print('Backup cancelled');
-    }
-  }
-
-  // Future<void> restoreDatabase() async {
-  //   String? backupFilePath = await pickBackupFile();
-  //   if (backupFilePath != null) {
-  //     String dbPath = await getDatabasePath();
-  //     File dbFile = File(dbPath);
-  //     await dbFile.delete(); // حذف قاعدة البيانات الحالية
-  //     await File(backupFilePath).copy(dbPath); // نسخ النسخة الاحتياطية
-  //     print('Restore successful');
-  //   } else {
-  //     print('Restore cancelled');
-  //   }
-  // }
-
-  // Future<String?> pickBackupFile() async {
-  //   String? filePath = await FilePicker.platform.pickFiles(
-  //     type: FileType.custom,
-  //     allowedExtensions: ['db'], // يمكنك تعديل امتداد الملف حسب الحاجة
-  //   ).then((result) {
-  //     return result?.files.single.path;
-  //   });
-  //   return filePath;
-  // }
 }

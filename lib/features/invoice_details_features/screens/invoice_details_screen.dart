@@ -13,9 +13,20 @@ import 'package:bazara_optician_app/sqldb.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:screenshot/screenshot.dart';
+import 'dart:typed_data';
+import 'dart:io';
+import 'package:image/image.dart' as img;
+import 'package:share_plus/share_plus.dart';
+import 'package:path_provider/path_provider.dart';
 
 class InvoiceDetailsScreen extends StatefulWidget {
-  const InvoiceDetailsScreen({super.key});
+  final int id;
+  final String isDefaultType;
+  const InvoiceDetailsScreen({
+    super.key,
+    required this.id,
+    required this.isDefaultType,
+  });
 
   @override
   State<InvoiceDetailsScreen> createState() => _InvoiceDetailsScreenState();
@@ -26,7 +37,7 @@ class _InvoiceDetailsScreenState extends State<InvoiceDetailsScreen> {
 
   SqlDb sqlDb = SqlDb();
   List list = [];
-  bool? isDefaultValue;
+  String? isDefaultType;
   int? id;
   late TextEditingController total_price = TextEditingController(
     text: list[0]['total_price'],
@@ -56,26 +67,19 @@ class _InvoiceDetailsScreenState extends State<InvoiceDetailsScreen> {
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      final Map? args = ModalRoute.of(context)?.settings.arguments as Map?;
-      if (args != null) {
-        setState(() {
-          id = args['id'];
-          isDefaultValue = args['isDefaultValue'];
-        });
-        readData();
-      }
-    });
+    id = widget.id;
+    isDefaultType = widget.isDefaultType;
+    readData();
   }
 
   Future<void> readData() async {
-    if (isDefaultValue == true) {
+    if (isDefaultType == "Optometry") {
       list.clear();
       List<Map> response = await sqlDb.readData(
         "SELECT * FROM ClientOptometry WHERE id = $id",
       );
       list.addAll(response);
-    } else {
+    } else if (isDefaultType == "Purchases") {
       list.clear();
       List<Map> response = await sqlDb.readData(
         "SELECT * FROM ClientPurchases WHERE id = $id",
@@ -123,7 +127,7 @@ class _InvoiceDetailsScreenState extends State<InvoiceDetailsScreen> {
                                                 color: AppColors.blackLight,
                                               ),
                                           title:
-                                              isDefaultValue == true
+                                              isDefaultType == "Optometry"
                                                   ? 'كليشة فحص نظر'
                                                   : 'كليشة شراء نظارة',
                                         ),
@@ -155,7 +159,7 @@ class _InvoiceDetailsScreenState extends State<InvoiceDetailsScreen> {
                                     crossAxisAlignment:
                                         CrossAxisAlignment.start,
                                     children: [
-                                      isDefaultValue == true
+                                      isDefaultType == "Optometry"
                                           ? InvoiceOptometryWidget(
                                             dist_R_SPH: TextEditingController(
                                               text: list[0]['dist_R_SPH'],
@@ -282,17 +286,33 @@ class _InvoiceDetailsScreenState extends State<InvoiceDetailsScreen> {
                               title: 'حفظ وطباعة PDF',
                               width: 150.w,
                               onTap: () async {
-                                await PdfFunction.generatePdf(
-                                  screenshotController,
-                                );
+                                FocusScope.of(
+                                  context,
+                                ).unfocus(); // إزالة الفوكس عند الضغط على الزر
+                                int response = await sqlDb.updateData('''
+                            UPDATE ClientPurchases SET
+                            paid_price = "${paid_price.text}",
+                            remaining_price = "${remaining_price.text}"
+                            WHERE id = $id
+                            ''');
+                                if (response > 0) {
+                                  await SharedFunction.generatePdf(
+                                    screenshotController,
+                                  );
+                                }
                               },
                             ),
+
                             ActionButtonWidget(
                               isSolid: false,
                               iconPath: Icons.share,
                               title: 'مشاركة',
                               width: 150.w,
-                              onTap: () {},
+                              onTap: () async {
+                                await SharedFunction.generateScreenshot(
+                                  screenshotController,
+                                );
+                              },
                             ),
                           ],
                         ),

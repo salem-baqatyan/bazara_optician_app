@@ -5,6 +5,7 @@ import 'package:bazara_optician_app/core/styles/text_style.dart';
 import 'package:bazara_optician_app/core/utils/route.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:table_calendar/table_calendar.dart';
 
@@ -23,13 +24,23 @@ class _CalenderDatesScreenState extends State<CalenderDatesScreen> {
   void initState() {
     super.initState();
     _selectedDay = DateUtils.dateOnly(_focusedDay); // إزالة الوقت
-    _loadEvents(); // تحميل الأحداث مباشرة
+
+    // تحميل الأحداث بعد بناء الواجهة
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _updateSelectedEvents(_selectedDay!, _focusedDay);
+    });
   }
 
-  void _loadEvents() {
+  // دالة تحديث قائمة الأحداث المختارة
+  void _updateSelectedEvents(DateTime selectedDay, DateTime focusedDay) {
     final eventProvider = Provider.of<EventProvider>(context, listen: false);
-    eventProvider.loadEvents();
-    setState(() {}); // تحديث الواجهة بعد تحميل الأحداث
+    eventProvider.loadEvents().then((_) {
+      setState(() {
+        _selectedDay = DateUtils.dateOnly(selectedDay);
+        _focusedDay = focusedDay;
+        _selectedEvents = eventProvider.events[_selectedDay] ?? [];
+      });
+    });
   }
 
   @override
@@ -68,20 +79,30 @@ class _CalenderDatesScreenState extends State<CalenderDatesScreen> {
                 ),
               ),
               calendarStyle: CalendarStyle(
+                markerDecoration: BoxDecoration(
+                  color: AppColors.primary,
+                  shape: BoxShape.circle,
+                ),
                 defaultTextStyle: KTextStyle.textStyle14.copyWith(
                   color: AppColors.blackDark,
                 ),
                 selectedTextStyle: KTextStyle.textStyle16.copyWith(
+                  color: AppColors.primary,
+                ),
+
+                selectedDecoration: BoxDecoration(
+                  color: const Color.fromARGB(60, 255, 117, 107),
+                  shape: BoxShape.circle,
+                  // borderRadius: BorderRadius.circular(10.r),
+                ),
+                todayTextStyle: KTextStyle.textStyle16.copyWith(
                   color: AppColors.blackDark,
                 ),
-                selectedDecoration: BoxDecoration(
+                todayDecoration: BoxDecoration(
                   color: AppColors.white,
                   shape: BoxShape.circle,
-                  border: Border.all(color: AppColors.primary, width: 2),
-                ),
-                todayDecoration: BoxDecoration(
-                  color: AppColors.primary,
-                  shape: BoxShape.circle,
+                  // borderRadius: BorderRadius.circular(10.r),
+                  border: Border.all(color: AppColors.primary, width: 1.5),
                 ),
               ),
               focusedDay: _focusedDay,
@@ -94,11 +115,7 @@ class _CalenderDatesScreenState extends State<CalenderDatesScreen> {
                 return events[normalizedDay] ?? [];
               },
               onDaySelected: (selectedDay, focusedDay) {
-                setState(() {
-                  _selectedDay = DateUtils.dateOnly(selectedDay);
-                  _focusedDay = focusedDay;
-                  _selectedEvents = events[_selectedDay] ?? [];
-                });
+                _updateSelectedEvents(selectedDay, focusedDay);
               },
             ),
             SizedBox(height: 10),
@@ -122,14 +139,17 @@ class _CalenderDatesScreenState extends State<CalenderDatesScreen> {
 
                           return InkWell(
                             onTap: () {
-                              Navigator.pushNamed(
-                                context,
-                                RouteName.kInvoiceDetailsScreen,
-                                arguments: {
-                                  'id': event['id'],
-                                  'isDefaultValue':
-                                      event['type'] == "Optometry",
-                                },
+                              debugPrint(
+                                "Navigating with id: ${event['id']} and isDefaultValue: ${event['type'] == "Optometry"}",
+                              );
+                              context.push(
+                                AppRouter.storeRouters.kCustomerReminderScreen,
+                                extra: [
+                                  event['id'],
+                                  event['type'] == "Optometry"
+                                      ? 'Optometry'
+                                      : 'Purchases',
+                                ],
                               );
                             },
                             child: Card(

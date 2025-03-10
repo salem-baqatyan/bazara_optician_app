@@ -1,33 +1,46 @@
+import 'package:bazara_optician_app/features/customer_reminder_features/customer_reminder_screen.dart';
 import 'package:bazara_optician_app/features/home_screen.dart';
 import 'package:bazara_optician_app/features/invoice_details_features/screens/invoice_details_screen.dart';
-// import 'package:bazara_optician_app/features/new_invoice_features/widgets/test.dart';
-import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
+import 'package:flutter/widgets.dart';
 
-class RouteName {
-  static String khomeScreen = '/';
-  static String kInvoiceDetailsScreen = '/invoice_details_screen';
-  // static String ktest = '/test';
+class NameRouters {
+  String khomeScreen = '/';
+  String kInvoiceDetailsScreen = '/invoice_details_screen';
+  String kCustomerReminderScreen = '/customer_reminder_screen';
 }
 
-class AppRoute {
-  static Route<dynamic> routeApp(RouteSettings routeSettings) {
-    switch (routeSettings.name) {
-      case '/':
-        return MaterialPageRoute(builder: (ctx) => const HomeScreen());
+abstract class AppRouter {
+  static const khomeScreen = '/';
+  static NameRouters storeRouters = NameRouters();
+  static final router = GoRouter(
+    routes: [
+      // Name Routes
+      GoRoute(
+        path: AppRouter.storeRouters.khomeScreen,
+        builder: (context, state) => const HomeScreen(),
+      ),
 
-      case '/invoice_details_screen':
-        return MaterialPageRoute(
-          builder: (ctx) => const InvoiceDetailsScreen(),
-          settings: RouteSettings(arguments: routeSettings.arguments),
-        );
-      // case '/test':
-      // return MaterialPageRoute(
-      //   builder: (ctx) => const Test(),
-      // settings: RouteSettings(arguments: routeSettings.arguments),
-      // );
+      GoRoute(
+        path: AppRouter.storeRouters.kInvoiceDetailsScreen,
+        builder: (context, state) {
+          final List<dynamic> args = state.extra as List<dynamic>;
+          final int id = args[0];
+          final String isDefaultType = args[1];
+          return InvoiceDetailsScreen(id: id, isDefaultType: isDefaultType);
+        },
+      ),
 
-      default:
-        return MaterialPageRoute(builder: (ctx) => const HomeScreen());
-    }
-  }
+      GoRoute(
+        path: AppRouter.storeRouters.kCustomerReminderScreen,
+        builder: (context, state) {
+          final List<dynamic> args = state.extra as List<dynamic>;
+          final int id = args[0];
+          final String isDefaultType = args[1];
+
+          return CustomerReminderScreen(id: id, isDefaultType: isDefaultType);
+        },
+      ),
+    ],
+  );
 }

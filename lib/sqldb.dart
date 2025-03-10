@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
-//import 'package:provider/provider.dart';
+import 'dart:io';
+import 'package:file_picker/file_picker.dart';
 
 class SqlDb extends ChangeNotifier {
   static Database? _db;
+
   Future<Database?> get db async {
     if (_db == null) {
       _db = await intialDb();
@@ -14,19 +16,19 @@ class SqlDb extends ChangeNotifier {
     }
   }
 
-  intialDb() async {
-    String databasepath = await getDatabasesPath();
-    String path = join(databasepath, 'database.db');
+  Future<Database> intialDb() async {
+    String databasePath = await getDatabasesPath();
+    String path = join(databasePath, 'database.db');
     Database mydb = await openDatabase(
       path,
+      version: 1,
       onCreate: _onCreate,
-      version: 2,
       onUpgrade: _onUpgrade,
     );
     return mydb;
   }
 
-  _onCreate(Database db, int version) async {
+  Future<void> _onCreate(Database db, int version) async {
     Batch batch = db.batch();
     batch.execute('''
       CREATE TABLE "ClientOptometry" (
@@ -92,37 +94,94 @@ class SqlDb extends ChangeNotifier {
     )
   ''');
     await batch.commit();
-    print('Create Database and Table ====================');
+    debugPrint('Create Database and Table ====================');
   }
 
-  _onUpgrade(Database db, int oldversion, int newversion) async {}
+  Future<void> _onUpgrade(Database db, int oldVersion, int newVersion) async {}
 
-  deleteMyDatabase() async {
-    String databasepath = await getDatabasesPath();
-    String path = join(databasepath, 'database.db');
+  Future<String> getDatabasePath() async {
+    String databasePath = await getDatabasesPath();
+    return join(databasePath, 'database.db');
+  }
+
+  Future<void> deleteMyDatabase() async {
+    String databasePath = await getDatabasesPath();
+    String path = join(databasePath, 'database.db');
     await deleteDatabase(path);
   }
 
-  readData(String sql) async {
+  Future<void> backupDatabase() async {
+    String databasePath = await getDatabasesPath();
+    String dbFilePath = join(databasePath, 'database.db');
+    File dbFile = File(dbFilePath);
+
+    if (!await dbFile.exists()) {
+      debugPrint('❌ قاعدة البيانات غير موجودة!');
+      return;
+    }
+
+    String? backupDir = await FilePicker.platform.getDirectoryPath();
+    if (backupDir != null) {
+      final now = DateTime.now();
+      final randomFileName =
+          '${now.year}-${now.month}-${now.day}_${now.hour}-${now.minute}-${now.second}-${now.millisecond}.pdf';
+
+      String backupPath = join(backupDir, "backup_$randomFileName.db");
+      await dbFile.copy(backupPath);
+      debugPrint('✅ النسخ الاحتياطي ناجح: $backupPath');
+    } else {
+      debugPrint('❌ تم إلغاء النسخ الاحتياطي');
+    }
+  }
+
+  Future<void> restoreDatabase() async {
+    try {
+      FilePickerResult? result = await FilePicker.platform.pickFiles(
+        type: FileType.any, // 🔹 السماح بأي نوع ملف
+      );
+
+      if (result != null && result.files.single.path != null) {
+        String backupFilePath = result.files.single.path!;
+        String dbPath =
+            await getDatabasePath(); // 🔹 استدعاء `getDatabasePath` هنا
+        File dbFile = File(dbPath);
+
+        // حذف قاعدة البيانات الحالية إذا كانت موجودة
+        if (await dbFile.exists()) {
+          await dbFile.delete();
+        }
+
+        // استعادة النسخة الاحتياطية
+        await File(backupFilePath).copy(dbPath);
+        print('✅ استعادة النسخة الاحتياطية تمت بنجاح');
+      } else {
+        print('⚠️ لم يتم اختيار أي ملف');
+      }
+    } catch (e) {
+      print('❌ خطأ أثناء استعادة النسخة الاحتياطية: $e');
+    }
+  }
+
+  Future<dynamic> readData(String sql) async {
     Database? mydb = await db;
     List<Map> response = await mydb!.rawQuery(sql);
     notifyListeners();
     return response;
   }
 
-  insertData(String sql) async {
+  Future<dynamic> insertData(String sql) async {
     Database? mydb = await db;
     int response = await mydb!.rawInsert(sql);
     return response;
   }
 
-  updateData(String sql) async {
+  Future<dynamic> updateData(String sql) async {
     Database? mydb = await db;
     int response = await mydb!.rawUpdate(sql);
     return response;
   }
 
-  deleteData(String sql) async {
+  Future<dynamic> deleteData(String sql) async {
     Database? mydb = await db;
     int response = await mydb!.rawDelete(sql);
     return response;

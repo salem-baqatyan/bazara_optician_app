@@ -1,18 +1,24 @@
+import 'package:bazara_optician_app/core/provider/event_provider.dart';
 import 'package:bazara_optician_app/core/shered_widget/custom_app_bar.dart';
 import 'package:bazara_optician_app/core/styles/Colors.dart';
 import 'package:bazara_optician_app/features/calendar_dates_features/calender_dates_screen.dart';
+import 'package:bazara_optician_app/features/customer_reminder_features/customer_reminder_screen.dart';
 import 'package:bazara_optician_app/features/invoice_reports_features/invoice_reports_screen.dart';
 import 'package:bazara_optician_app/features/main_menu_features/backup.dart';
-import 'package:bazara_optician_app/features/main_menu_features/pdf.dart';
+import 'package:bazara_optician_app/features/main_menu_features/test.dart';
+import 'package:bazara_optician_app/features/customers_market_features/customers_market_screen.dart';
 import 'package:bazara_optician_app/features/new_invoice_features/screens/new_invoice_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:provider/provider.dart';
 
 class MainMenuScreen extends StatelessWidget {
   const MainMenuScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
+    Provider.of<EventProvider>(context, listen: false).removeOldEvents();
+
     final List<Map<String, dynamic>> options = [
       {
         "title": 'أضافة فاتورة جديدة',
@@ -27,14 +33,23 @@ class MainMenuScreen extends StatelessWidget {
       {
         "title": 'تسويق الى العملاء',
         "icon": Icons.shopping_cart,
-        "page": PdfPrinterScreen(),
+        "page": MarketScreen(),
+      },
+      {
+        "title": 'تذكير العملاء',
+        "icon": Icons.mail,
+        "page": CustomerReminderScreen(id: 0, isDefaultType: 'Other'),
       },
       {
         "title": 'تقارير الفواتير',
         "icon": Icons.receipt_long,
         "page": InvoiceReportsScreen(),
       },
-      {"title": 'نسخة الاحتياطية', "icon": Icons.backup, "page": Backup()},
+      {
+        "title": 'نسخة الاحتياطية',
+        "icon": Icons.backup,
+        "page": BackupScreen(),
+      },
     ];
     return SafeArea(
       child: Scaffold(
@@ -43,7 +58,7 @@ class MainMenuScreen extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              CustomAppBar(tital: 'Main Menu', isBack: false),
+              CustomAppBar(tital: 'القائمة الرئيسية', isBack: false),
               SizedBox(height: 20.h),
               Expanded(
                 child: ListView.builder(

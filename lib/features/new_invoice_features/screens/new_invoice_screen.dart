@@ -6,7 +6,7 @@ import 'package:bazara_optician_app/core/shered_widget/custom_app_bar.dart';
 import 'package:bazara_optician_app/core/shered_widget/section_title_widget.dart';
 import 'package:bazara_optician_app/core/shered_widget/type_radio_widget.dart';
 import 'package:bazara_optician_app/core/styles/Colors.dart';
-import 'package:bazara_optician_app/features/new_invoice_features/widgets/add_from_contacts_widget.dart';
+import 'package:bazara_optician_app/core/shered_widget/add_from_contacts_widget.dart';
 import 'package:bazara_optician_app/core/shered_widget/info_text_field_widget.dart';
 import 'package:bazara_optician_app/features/new_invoice_features/widgets/invoice_optometry_widget.dart';
 import 'package:bazara_optician_app/features/new_invoice_features/widgets/invoice_purchases_widget.dart';
