@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class InvoicePurchasesWidget extends StatelessWidget {
+  final bool? isEnable;
   final dynamic Function()? onChanged;
 
   final TextEditingController frame_type;
@@ -50,6 +51,7 @@ class InvoicePurchasesWidget extends StatelessWidget {
     required this.remaining_price,
     required this.invoice_date,
     required this.delvery_date,
+    this.isEnable,
   });
 
   @override
@@ -63,7 +65,7 @@ class InvoicePurchasesWidget extends StatelessWidget {
                 label: 'نوع الفريم',
                 controller: frame_type,
                 keyboardType: TextInputType.text,
-                isEnable: false,
+                isEnable: isEnable,
               ),
             ),
             SizedBox(width: 10.w),
@@ -72,7 +74,7 @@ class InvoicePurchasesWidget extends StatelessWidget {
                 label: 'موديل الفريم',
                 controller: frame_model,
                 keyboardType: TextInputType.text,
-                isEnable: false,
+                isEnable: isEnable,
               ),
             ),
           ],
@@ -129,7 +131,7 @@ class InvoicePurchasesWidget extends StatelessWidget {
                 controller: total_price,
                 keyboardType: TextInputType.number,
                 onChanged: (value) => onChanged!(),
-                isEnable: false, // لا يمكن تعديله يدويًا
+                isEnable: isEnable,
               ),
             ),
             SizedBox(width: 10.w),
@@ -139,6 +141,7 @@ class InvoicePurchasesWidget extends StatelessWidget {
                 controller: paid_price,
                 keyboardType: TextInputType.number,
                 onChanged: (value) => onChanged!(),
+                isEnable: isEnable,
               ),
             ),
             SizedBox(width: 10.w),
@@ -147,7 +150,7 @@ class InvoicePurchasesWidget extends StatelessWidget {
                 label: 'المتبقي',
                 controller: remaining_price,
                 keyboardType: TextInputType.number,
-                isEnable: false, // لا يمكن تعديله يدويًا
+                isEnable: false,
               ),
             ),
           ],
@@ -159,7 +162,8 @@ class InvoicePurchasesWidget extends StatelessWidget {
               child: InfoDisableFieldWidget(
                 label: 'التاريخ',
                 controller: invoice_date,
-                isEnable: false,
+                isEnable: isEnable,
+                isDate: isEnable,
               ),
             ),
             SizedBox(width: 10.w),
@@ -167,7 +171,8 @@ class InvoicePurchasesWidget extends StatelessWidget {
               child: InfoDisableFieldWidget(
                 label: 'موعد التسليم',
                 controller: delvery_date,
-                isEnable: false,
+                isEnable: isEnable,
+                isDate: isEnable,
               ),
             ),
           ],

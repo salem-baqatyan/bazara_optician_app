@@ -1,6 +1,5 @@
 import 'package:bazara_optician_app/core/provider/event_provider.dart';
 import 'package:bazara_optician_app/core/utils/route.dart';
-import 'package:bazara_optician_app/core/utils/route.dart';
 import 'package:bazara_optician_app/notification_service.dart';
 import 'package:bazara_optician_app/sqldb.dart';
 import 'package:flutter/material.dart';

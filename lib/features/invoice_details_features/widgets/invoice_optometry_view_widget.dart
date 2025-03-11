@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class InvoiceOptometryWidget extends StatelessWidget {
+  final bool? isEnable;
   final TextEditingController invoice_date;
   final TextEditingController review_date;
 
@@ -51,6 +52,7 @@ class InvoiceOptometryWidget extends StatelessWidget {
     required this.near_L_V_A,
     required this.L_P_D,
     required this.DR,
+    this.isEnable,
   });
 
   @override
@@ -192,7 +194,7 @@ class InvoiceOptometryWidget extends StatelessWidget {
               child: InfoDisableFieldWidget(
                 label: 'L.P.D',
                 controller: L_P_D, //L_P_D
-                isEnable: false,
+                isEnable: isEnable,
                 isDate: false,
               ),
             ),
@@ -201,7 +203,7 @@ class InvoiceOptometryWidget extends StatelessWidget {
               child: InfoDisableFieldWidget(
                 label: 'DR',
                 controller: DR, //DR
-                isEnable: false,
+                isEnable: isEnable,
                 isDate: false,
               ),
             ),
@@ -214,7 +216,8 @@ class InvoiceOptometryWidget extends StatelessWidget {
               child: InfoDisableFieldWidget(
                 label: 'التاريخ',
                 controller: invoice_date,
-                isEnable: false,
+                isEnable: isEnable,
+                isDate: isEnable,
               ),
             ),
             SizedBox(width: 10.w),
@@ -222,7 +225,7 @@ class InvoiceOptometryWidget extends StatelessWidget {
               child: InfoDisableFieldWidget(
                 label: 'موعد المراجعة',
                 controller: review_date,
-                isEnable: false,
+                isEnable: isEnable,
               ),
             ),
           ],

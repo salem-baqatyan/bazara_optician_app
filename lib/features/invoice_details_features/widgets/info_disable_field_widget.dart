@@ -32,7 +32,7 @@ class _InfoDisableFieldWidgetState extends State<InfoDisableFieldWidget> {
                 DateTime? pickeddate = await showDatePicker(
                   context: context,
                   initialDate: DateTime.now(),
-                  firstDate: DateTime.now(),
+                  firstDate: DateTime(1900),
                   lastDate: DateTime(2100),
                   builder: (BuildContext context, Widget? child) {
                     return Theme(

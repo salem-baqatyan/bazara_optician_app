@@ -151,6 +151,9 @@ class _CalenderDatesScreenState extends State<CalenderDatesScreen> {
                                       : 'Purchases',
                                 ],
                               );
+                              print(
+                                '${event['id']} ${event['type'] == "Optometry" ? 'Optometry' : 'Purchases'}',
+                              );
                             },
                             child: Card(
                               margin: EdgeInsets.symmetric(vertical: 4),

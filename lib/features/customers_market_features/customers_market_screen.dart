@@ -57,8 +57,8 @@ class _MarketScreenState extends State<MarketScreen> {
                                 mainImage, // استخدم الصورة الواحدة فقط
                             hasTileButton: true,
                             containerWidth: 400,
-                            mainContainerHeight: 210,
-                            upContainerHeight: 175,
+                            mainContainerHeight: 300,
+                            upContainerHeight: 250,
                             downContainerHeight: 35,
                             onPressed: () {
                               pickImageFromGallery(isMainImage: true);
@@ -84,18 +84,42 @@ class _MarketScreenState extends State<MarketScreen> {
                             title: 'مشاركة',
                             width: 150.w,
                             onTap: () async {
-                              if (mainImage != null) {
+                              // التحقق إذا كانت الصورة أو النص موجودين
+                              if (mainImage != null ||
+                                  detailsAds.text.isNotEmpty) {
                                 try {
-                                  await Share.shareXFiles([
-                                    XFile(mainImage!.path),
-                                  ], text: detailsAds.text);
+                                  // إذا كانت الصورة موجودة، سيتم مشاركة الصورة مع النص
+                                  if (mainImage != null &&
+                                      detailsAds.text.isNotEmpty) {
+                                    await Share.shareXFiles([
+                                      XFile(mainImage!.path),
+                                    ], text: detailsAds.text);
+                                  }
+                                  // إذا كانت الصورة فقط موجودة
+                                  else if (mainImage != null) {
+                                    await Share.shareXFiles([
+                                      XFile(mainImage!.path),
+                                    ]);
+                                  }
+                                  // إذا كان النص فقط موجودًا
+                                  else if (detailsAds.text.isNotEmpty) {
+                                    await Share.share(detailsAds.text);
+                                  }
                                 } catch (e) {
-                                  await Share.share(detailsAds.text);
+                                  // إذا فشل أي شيء في المشاركة
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(
+                                      content: Text("حدث خطأ أثناء المشاركة."),
+                                    ),
+                                  );
                                 }
                               } else {
+                                // إذا لم يكن هناك صورة أو نص
                                 ScaffoldMessenger.of(context).showSnackBar(
                                   SnackBar(
-                                    content: Text("يرجى اختيار صورة أولاً"),
+                                    content: Text(
+                                      "يرجى اختيار صورة أو كتابة نص للإعلان أولاً.",
+                                    ),
                                   ),
                                 );
                               }

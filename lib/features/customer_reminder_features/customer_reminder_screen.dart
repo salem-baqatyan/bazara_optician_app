@@ -34,9 +34,13 @@ class _CustomerReminderScreenState extends State<CustomerReminderScreen> {
   final FlutterNativeContactPicker _contactPicker =
       FlutterNativeContactPicker();
 
-  late TextEditingController name = TextEditingController();
-  late TextEditingController phone = TextEditingController();
-  late TextEditingController message = TextEditingController();
+  late TextEditingController name = TextEditingController(
+    text: list[0]['name'],
+  );
+  late TextEditingController phone = TextEditingController(
+    text: list[0]['phone'],
+  );
+  late TextEditingController message = TextEditingController(text: messageType);
 
   SqlDb sqlDb = SqlDb();
   List list = [];
@@ -49,9 +53,6 @@ class _CustomerReminderScreenState extends State<CustomerReminderScreen> {
     id = widget.id;
     isDefaultType = widget.isDefaultType;
     readData();
-    name = TextEditingController(text: list[0]['name']);
-    phone = TextEditingController(text: list[0]['phone']);
-    message = TextEditingController(text: messageType);
   }
 
   Future<void> readData() async {
@@ -136,7 +137,13 @@ class _CustomerReminderScreenState extends State<CustomerReminderScreen> {
                             maxLines: 5,
                           ),
                           SizedBox(height: 20.h),
-                          socialButtons(),
+                          Container(
+                            decoration: BoxDecoration(
+                              color: AppColors.background,
+                              borderRadius: BorderRadius.circular(5),
+                            ),
+                            child: socialButtons(),
+                          ),
                         ],
                       ),
                     ),
@@ -156,35 +163,61 @@ class _CustomerReminderScreenState extends State<CustomerReminderScreen> {
       children: [
         IconButton(
           onPressed: () {
-            // final whatsappUrl = Uri.parse('https://wa.me/${phone.text}');
-            // launchUrl(whatsappUrl, mode: LaunchMode.externalApplication);
-            final Uri launchUri = Uri(
-              scheme: 'https',
-              host: 'api.whatsapp.com',
-              path: 'send',
-              queryParameters: {'phone': phone.text, 'text': message.text},
-            );
-            launchUrl(launchUri);
+            if (name.text.isEmpty ||
+                phone.text.isEmpty ||
+                message.text.isEmpty) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(content: Text('يرجى ملء جميع الحقول اولا!')),
+              );
+            } else {
+              final Uri launchUri = Uri(
+                scheme: 'https',
+                host: 'api.whatsapp.com',
+                path: 'send',
+                queryParameters: {'phone': phone.text, 'text': message.text},
+              );
+              launchUrl(launchUri);
+            }
           },
-          icon: const Icon(SocialIcon.whatsapp),
+          icon: const Icon(
+            SocialIcon.whatsapp,
+            color: AppColors.primary,
+            size: 30,
+          ),
         ),
         IconButton(
           onPressed: () {
-            final Uri launchUri = Uri(
-              scheme: 'sms',
-              path: phone.text,
-              queryParameters: {'body': message.text},
-            );
-            launchUrl(launchUri);
+            if (name.text.isEmpty ||
+                phone.text.isEmpty ||
+                message.text.isEmpty) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(content: Text('يرجى ملء جميع الحقول اولا!')),
+              );
+            } else {
+              final Uri launchUri = Uri(
+                scheme: 'sms',
+                path: phone.text,
+                queryParameters: {'body': message.text},
+              );
+              launchUrl(launchUri);
+            }
           },
-          icon: const Icon(Icons.mail),
+          icon: const Icon(Icons.mail, color: AppColors.primary, size: 30),
         ),
         IconButton(
           onPressed: () {
-            final Uri launchUri = Uri(scheme: 'tel', path: phone.text);
-            launchUrl(launchUri);
+            if (name.text.isEmpty ||
+                phone.text.isEmpty ||
+                message.text.isEmpty) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(content: Text('يرجى ملء جميع الحقول اولا!')),
+              );
+            } else {
+              final Uri launchUri = Uri(scheme: 'tel', path: phone.text);
+              launchUrl(launchUri);
+            }
           },
-          icon: const Icon(Icons.phone),
+          icon: const Icon(Icons.phone, color: AppColors.primary, size: 30),
         ),
       ],
     );

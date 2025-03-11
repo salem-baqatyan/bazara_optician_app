@@ -41,6 +41,8 @@ class NotificationService {
       eventDate.day,
       0,
       0,
+      // now.hour,
+      // now.minute + 2,
     );
 
     if (scheduledDate.isBefore(now)) {

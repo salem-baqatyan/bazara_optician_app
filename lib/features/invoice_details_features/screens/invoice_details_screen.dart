@@ -1,6 +1,6 @@
 // ignore_for_file: non_constant_identifier_names
 
-import 'package:bazara_optician_app/core/function/pdf_function.dart';
+import 'package:bazara_optician_app/core/function/shared_function.dart';
 import 'package:bazara_optician_app/core/shered_widget/action_button_widget.dart';
 import 'package:bazara_optician_app/core/shered_widget/custom_app_bar.dart';
 import 'package:bazara_optician_app/core/shered_widget/info_text_field_widget.dart';
@@ -13,11 +13,6 @@ import 'package:bazara_optician_app/sqldb.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:screenshot/screenshot.dart';
-import 'dart:typed_data';
-import 'dart:io';
-import 'package:image/image.dart' as img;
-import 'package:share_plus/share_plus.dart';
-import 'package:path_provider/path_provider.dart';
 
 class InvoiceDetailsScreen extends StatefulWidget {
   final int id;
@@ -34,11 +29,34 @@ class InvoiceDetailsScreen extends StatefulWidget {
 
 class _InvoiceDetailsScreenState extends State<InvoiceDetailsScreen> {
   final ScreenshotController screenshotController = ScreenshotController();
-
+  bool isEnable = false;
   SqlDb sqlDb = SqlDb();
   List list = [];
   String? isDefaultType;
   int? id;
+  late TextEditingController name = TextEditingController(
+    text: list[0]['name'],
+  );
+  late TextEditingController phone = TextEditingController(
+    text: list[0]['phone'],
+  );
+  late TextEditingController invoice_date = TextEditingController(
+    text: list[0]['invoice_date'],
+  );
+  late TextEditingController L_P_D = TextEditingController(
+    text: list[0]['L_P_D'],
+  );
+  late TextEditingController DR = TextEditingController(text: list[0]['DR']);
+  late TextEditingController review_date = TextEditingController(
+    text: list[0]['review_date'],
+  );
+  ///////////////////////////////////////////////////
+  late TextEditingController frame_type = TextEditingController(
+    text: list[0]['frame_type'],
+  );
+  late TextEditingController frame_model = TextEditingController(
+    text: list[0]['frame_model'],
+  );
   late TextEditingController total_price = TextEditingController(
     text: list[0]['total_price'],
   );
@@ -47,6 +65,9 @@ class _InvoiceDetailsScreenState extends State<InvoiceDetailsScreen> {
   );
   late TextEditingController remaining_price = TextEditingController(
     text: list[0]['remaining_price'],
+  );
+  late TextEditingController delvery_date = TextEditingController(
+    text: list[0]['delvery_date'],
   );
 
   void onChanged() {
@@ -89,6 +110,51 @@ class _InvoiceDetailsScreenState extends State<InvoiceDetailsScreen> {
     if (mounted) setState(() {});
   }
 
+  Future updateData() async {
+    if (isDefaultType == "Optometry") {
+      int response = await sqlDb.updateData('''
+      UPDATE ClientOptometry SET
+      name ="${name.text}",
+      phone ="${phone.text}",
+      L_P_D ="${L_P_D.text}",
+      DR ="${DR.text}",
+      invoice_date ="${invoice_date.text}",
+      review_date ="${review_date.text}"
+
+      WHERE id = $id
+      ''');
+
+      if (response > 0) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('تمت تعديل فاتورة فحص النظر بنجاح...')),
+        );
+      }
+    } else {
+      int response = await sqlDb.updateData('''
+      UPDATE ClientPurchases SET
+      name ="${name.text}",
+      phone ="${phone.text}",
+      frame_type ="${frame_type.text}",
+      frame_model ="${frame_model.text}",
+      total_price ="${total_price.text}",
+      paid_price ="${paid_price.text}",
+      remaining_price ="${remaining_price.text}",
+      invoice_date ="${invoice_date.text}",
+      delvery_date ="${delvery_date.text}"
+
+      WHERE id = $id
+      ''');
+
+      if (response > 0) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('تمت تعديل فاتورة شراء النظارة بنجاح...'),
+          ),
+        );
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return SafeArea(
@@ -98,7 +164,18 @@ class _InvoiceDetailsScreenState extends State<InvoiceDetailsScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              CustomAppBar(tital: 'تقرير فاتورة'),
+              CustomAppBar(
+                tital: 'تقرير فاتورة',
+                isOptionalButton: true,
+                optionalButtonIcon: isEnable ? Icons.edit_off : Icons.edit,
+                optionalButtonColor: isEnable ? AppColors.colorButton : null,
+                onOptionalButtonTab: () {
+                  setState(() {
+                    FocusScope.of(context).unfocus();
+                    isEnable = !isEnable;
+                  });
+                },
+              ),
               Expanded(
                 child: Padding(
                   padding: const EdgeInsets.all(20.0),
@@ -115,6 +192,9 @@ class _InvoiceDetailsScreenState extends State<InvoiceDetailsScreen> {
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
+                                  Image.asset(
+                                    'assets/image/icon_store_bill.png',
+                                  ),
                                   Column(
                                     crossAxisAlignment:
                                         CrossAxisAlignment.start,
@@ -128,28 +208,24 @@ class _InvoiceDetailsScreenState extends State<InvoiceDetailsScreen> {
                                               ),
                                           title:
                                               isDefaultType == "Optometry"
-                                                  ? 'كليشة فحص نظر'
-                                                  : 'كليشة شراء نظارة',
+                                                  ? 'فاتورة فحص نظر'
+                                                  : 'فاتورة شراء نظارة',
                                         ),
                                       ),
                                       SizedBox(height: 20.h),
                                       InfoTextFieldWidget(
                                         title: 'اسم العميل',
-                                        controller: TextEditingController(
-                                          text: list[0]['name'],
-                                        ),
+                                        controller: name,
                                         keyboardType: TextInputType.text,
-                                        isEnable: false,
+                                        isEnable: isEnable,
                                         unRequired: true,
                                       ),
                                       SizedBox(height: 10.h),
                                       InfoTextFieldWidget(
                                         title: 'رقم العميل',
-                                        controller: TextEditingController(
-                                          text: list[0]['phone'],
-                                        ),
+                                        controller: phone,
                                         keyboardType: TextInputType.phone,
-                                        isEnable: false,
+                                        isEnable: isEnable,
                                         unRequired: true,
                                       ),
                                     ],
@@ -161,6 +237,7 @@ class _InvoiceDetailsScreenState extends State<InvoiceDetailsScreen> {
                                     children: [
                                       isDefaultType == "Optometry"
                                           ? InvoiceOptometryWidget(
+                                            isEnable: isEnable,
                                             dist_R_SPH: TextEditingController(
                                               text: list[0]['dist_R_SPH'],
                                             ),
@@ -209,30 +286,17 @@ class _InvoiceDetailsScreenState extends State<InvoiceDetailsScreen> {
                                             near_L_V_A: TextEditingController(
                                               text: list[0]['near_L_V_A'],
                                             ),
-                                            L_P_D: TextEditingController(
-                                              text: list[0]['L_P_D'],
-                                            ),
-                                            DR: TextEditingController(
-                                              text: list[0]['DR'],
-                                            ),
-                                            invoice_date: TextEditingController(
-                                              text: list[0]['invoice_date'],
-                                            ),
-                                            review_date: TextEditingController(
-                                              text: list[0]['review_date'],
-                                            ),
+                                            L_P_D: L_P_D,
+                                            DR: DR,
+                                            invoice_date: invoice_date,
+                                            review_date: review_date,
                                           )
                                           : InvoicePurchasesWidget(
+                                            isEnable: isEnable,
                                             onChanged: onChanged,
-                                            invoice_date: TextEditingController(
-                                              text: list[0]['invoice_date'],
-                                            ),
-                                            frame_type: TextEditingController(
-                                              text: list[0]['frame_type'],
-                                            ),
-                                            frame_model: TextEditingController(
-                                              text: list[0]['frame_model'],
-                                            ),
+                                            invoice_date: invoice_date,
+                                            frame_type: frame_type,
+                                            frame_model: frame_model,
                                             R_SPH: TextEditingController(
                                               text: list[0]['R_SPH'],
                                             ),
@@ -266,9 +330,7 @@ class _InvoiceDetailsScreenState extends State<InvoiceDetailsScreen> {
                                             total_price: total_price,
                                             paid_price: paid_price,
                                             remaining_price: remaining_price,
-                                            delvery_date: TextEditingController(
-                                              text: list[0]['delvery_date'],
-                                            ),
+                                            delvery_date: delvery_date,
                                           ),
                                     ],
                                   ),
@@ -278,44 +340,45 @@ class _InvoiceDetailsScreenState extends State<InvoiceDetailsScreen> {
                           ),
                         ),
                         SizedBox(height: 10.h),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            ActionButtonWidget(
-                              iconPath: Icons.print,
-                              title: 'حفظ وطباعة PDF',
-                              width: 150.w,
-                              onTap: () async {
-                                FocusScope.of(
-                                  context,
-                                ).unfocus(); // إزالة الفوكس عند الضغط على الزر
-                                int response = await sqlDb.updateData('''
-                            UPDATE ClientPurchases SET
-                            paid_price = "${paid_price.text}",
-                            remaining_price = "${remaining_price.text}"
-                            WHERE id = $id
-                            ''');
-                                if (response > 0) {
-                                  await SharedFunction.generatePdf(
-                                    screenshotController,
-                                  );
-                                }
-                              },
-                            ),
+                        isEnable == false
+                            ? Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                ActionButtonWidget(
+                                  iconPath: Icons.print,
+                                  title: 'طباعة PDF',
+                                  width: 150.w,
+                                  onTap: () async {
+                                    await SharedFunction.generatePdf(
+                                      screenshotController,
+                                    );
+                                  },
+                                ),
 
-                            ActionButtonWidget(
-                              isSolid: false,
-                              iconPath: Icons.share,
-                              title: 'مشاركة',
+                                ActionButtonWidget(
+                                  isSolid: false,
+                                  iconPath: Icons.share,
+                                  title: 'مشاركة',
+                                  width: 150.w,
+                                  onTap: () async {
+                                    await SharedFunction.generateScreenshot(
+                                      screenshotController,
+                                    );
+                                  },
+                                ),
+                              ],
+                            )
+                            : ActionButtonWidget(
+                              iconPath: Icons.save,
+                              title: 'حفظ التعديل',
                               width: 150.w,
                               onTap: () async {
-                                await SharedFunction.generateScreenshot(
-                                  screenshotController,
-                                );
+                                setState(() {
+                                  updateData();
+                                  isEnable = !isEnable;
+                                });
                               },
                             ),
-                          ],
-                        ),
                         SizedBox(height: 20.h),
                       ],
                     ),

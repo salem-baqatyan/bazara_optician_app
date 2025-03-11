@@ -101,7 +101,6 @@ class _NewInvoiceScreenState extends State<NewInvoiceScreen> {
 
     L_P_D.clear();
     DR.clear();
-    invoice_date.clear();
     review_date.clear();
   }
 
@@ -124,7 +123,6 @@ class _NewInvoiceScreenState extends State<NewInvoiceScreen> {
     paid_price.clear();
     remaining_price.clear();
 
-    invoice_date.clear();
     delvery_date.clear();
   }
 
@@ -143,8 +141,37 @@ class _NewInvoiceScreenState extends State<NewInvoiceScreen> {
   }
 
   Future addData() async {
+    // ✅ دالة لتحويل "0.00" إلى "PR" والحقول الفارغة إلى "-"
+    String formatValue(String value) {
+      if (value.trim().isEmpty) return "-"; // إذا كان الحقل فارغًا ضع "-"
+      if (value.trim() == "0.00") return "PR"; // إذا كان الحقل "0.00" ضع "PR"
+      return value;
+    }
+
     if (isDefaultValue == true) {
-      int response = await sqlDb.insertData('''
+      if (name.text.isEmpty || phone.text.isEmpty || DR.text.isEmpty) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('يرجى ملء جميع الحقول المطلوبة!')),
+        );
+      } else {
+        dist_R_SPH.text = formatValue(dist_R_SPH.text);
+        dist_R_CYL.text = formatValue(dist_R_CYL.text);
+        dist_R_AXIS.text = formatValue(dist_R_AXIS.text);
+        dist_R_V_A.text = formatValue(dist_R_V_A.text);
+        dist_L_SPH.text = formatValue(dist_L_SPH.text);
+        dist_L_CYL.text = formatValue(dist_L_CYL.text);
+        dist_L_AXIS.text = formatValue(dist_L_AXIS.text);
+        dist_L_V_A.text = formatValue(dist_L_V_A.text);
+        near_R_SPH.text = formatValue(near_R_SPH.text);
+        near_R_CYL.text = formatValue(near_R_CYL.text);
+        near_R_AXIS.text = formatValue(near_R_AXIS.text);
+        near_R_V_A.text = formatValue(near_R_V_A.text);
+        near_L_SPH.text = formatValue(near_L_SPH.text);
+        near_L_CYL.text = formatValue(near_L_CYL.text);
+        near_L_AXIS.text = formatValue(near_L_AXIS.text);
+        near_L_V_A.text = formatValue(near_L_V_A.text);
+
+        int response = await sqlDb.insertData('''
       INSERT INTO ClientOptometry 
       (name, phone, dist_R_SPH, dist_R_CYL, dist_R_AXIS, dist_R_V_A, 
       dist_L_SPH, dist_L_CYL, dist_L_AXIS, dist_L_V_A, near_R_SPH, 
@@ -157,31 +184,54 @@ class _NewInvoiceScreenState extends State<NewInvoiceScreen> {
       "${near_L_AXIS.text}", "${near_L_V_A.text}", "${L_P_D.text}", "${DR.text}", "${invoice_date.text}", "${review_date.text}")
       ''');
 
-      if (response > 0) {
-        // 🔹 جلب ID آخر فاتورة
-        List<Map> lastInvoice = await sqlDb.readData(
-          "SELECT id FROM ClientOptometry ORDER BY id DESC LIMIT 1",
-        );
-        int invoiceId = lastInvoice[0]['id'];
+        if (response > 0) {
+          // 🔹 جلب ID آخر فاتورة
+          List<Map> lastInvoice = await sqlDb.readData(
+            "SELECT id FROM ClientOptometry ORDER BY id DESC LIMIT 1",
+          );
+          int invoiceId = lastInvoice[0]['id'];
 
-        // ✅ إضافة الحدث إلى التقويم
-        Provider.of<EventProvider>(context, listen: false).addEvent(
-          invoiceId,
-          'مراجعة فحص النظر لـ ${name.text}', // اسم الحدث
-          review_date.text,
-          "Optometry", // ✅ النوع الصحيح
-        );
-        name.clear();
-        phone.clear();
-        clearOptometry();
-        reloadDate();
+          // ✅ إضافة الحدث إلى التقويم
+          Provider.of<EventProvider>(context, listen: false).addEvent(
+            invoiceId,
+            'مراجعة فحص النظر لـ ${name.text}', // اسم الحدث
+            review_date.text,
+            "Optometry", // ✅ النوع الصحيح
+          );
+          name.clear();
+          phone.clear();
+          clearOptometry();
+          reloadDate();
 
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('تمت إضافة كليشة فحص النظر بنجاح...')),
-        );
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('تمت إضافة فاتورة فحص النظر بنجاح...'),
+            ),
+          );
+        }
       }
     } else {
-      int response = await sqlDb.insertData('''
+      if (name.text.isEmpty ||
+          phone.text.isEmpty ||
+          total_price.text.isEmpty ||
+          paid_price.text.isEmpty ||
+          delvery_date.text.isEmpty) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('يرجى ملء جميع الحقول المطلوبة!')),
+        );
+      } else {
+        R_SPH.text = formatValue(R_SPH.text);
+        R_CYL.text = formatValue(R_CYL.text);
+        R_AXIS.text = formatValue(R_AXIS.text);
+        R_ADD.text = formatValue(R_ADD.text);
+        R_CLR.text = formatValue(R_CLR.text);
+        L_SPH.text = formatValue(L_SPH.text);
+        L_CYL.text = formatValue(L_CYL.text);
+        L_AXIS.text = formatValue(L_AXIS.text);
+        L_ADD.text = formatValue(L_ADD.text);
+        L_CLR.text = formatValue(L_CLR.text);
+
+        int response = await sqlDb.insertData('''
       INSERT INTO ClientPurchases 
       (name, phone, frame_type, frame_model, R_SPH, R_CYL, R_AXIS, R_ADD, R_CLR, 
       L_SPH, L_CYL, L_AXIS, L_ADD, L_CLR, total_price, paid_price, remaining_price, 
@@ -192,30 +242,31 @@ class _NewInvoiceScreenState extends State<NewInvoiceScreen> {
       "${total_price.text}", "${paid_price.text}", "${remaining_price.text}", "${invoice_date.text}", "${delvery_date.text}")
       ''');
 
-      if (response > 0) {
-        // 🔹 جلب ID آخر فاتورة
-        List<Map> lastInvoice = await sqlDb.readData(
-          "SELECT id FROM ClientPurchases ORDER BY id DESC LIMIT 1",
-        );
-        int invoiceId = lastInvoice[0]['id'];
+        if (response > 0) {
+          // 🔹 جلب ID آخر فاتورة
+          List<Map> lastInvoice = await sqlDb.readData(
+            "SELECT id FROM ClientPurchases ORDER BY id DESC LIMIT 1",
+          );
+          int invoiceId = lastInvoice[0]['id'];
 
-        // ✅ إضافة الحدث إلى التقويم
-        Provider.of<EventProvider>(context, listen: false).addEvent(
-          invoiceId,
-          'تسليم النظارة لـ ${name.text}', // اسم الحدث
-          delvery_date.text,
-          "Purchases", // ✅ النوع الصحيح
-        );
-        name.clear();
-        phone.clear();
-        clearPurchases();
-        reloadDate();
+          // ✅ إضافة الحدث إلى التقويم
+          Provider.of<EventProvider>(context, listen: false).addEvent(
+            invoiceId,
+            'تسليم النظارة لـ ${name.text}', // اسم الحدث
+            delvery_date.text,
+            "Purchases", // ✅ النوع الصحيح
+          );
+          name.clear();
+          phone.clear();
+          clearPurchases();
+          reloadDate();
 
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('تمت إضافة كليشة شراء النظارة بنجاح...'),
-          ),
-        );
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('تمت إضافة فاتورة شراء النظارة بنجاح...'),
+            ),
+          );
+        }
       }
     }
   }
@@ -404,6 +455,7 @@ class _NewInvoiceScreenState extends State<NewInvoiceScreen> {
                           iconPath: Icons.add_circle_outline,
                           title: 'حفظ وتأكيد',
                           onTap: () {
+                            FocusScope.of(context).unfocus();
                             addData();
                           },
                         ),
