@@ -6,7 +6,7 @@ plugins {
 }
 
 android {
-    namespace = "com.example.bazara_optician_app"
+    namespace = "com.example.optician_app"
     compileSdk = flutter.compileSdkVersion
     ndkVersion = "28.0.13004108"
 
@@ -21,7 +21,7 @@ android {
     }
 
     defaultConfig {
-        applicationId = "com.example.bazara_optician_app"
+        applicationId = "com.example.optician_app"
         minSdk = flutter.minSdkVersion
         targetSdk = flutter.targetSdkVersion
         versionCode = flutter.versionCode

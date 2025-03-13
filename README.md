@@ -1,4 +1,4 @@
-# bazara_optician_app
+# optician_app
 
 A new Flutter project.
 

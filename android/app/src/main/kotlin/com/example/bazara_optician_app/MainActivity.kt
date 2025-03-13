@@ -1,4 +1,4 @@
-package com.example.bazara_optician_app
+package com.example.optician_app
 
 import android.app.Activity
 import android.content.Intent

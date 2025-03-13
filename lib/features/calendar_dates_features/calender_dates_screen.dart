@@ -1,8 +1,8 @@
-import 'package:bazara_optician_app/core/provider/event_provider.dart';
-import 'package:bazara_optician_app/core/shered_widget/custom_app_bar.dart';
-import 'package:bazara_optician_app/core/styles/Colors.dart';
-import 'package:bazara_optician_app/core/styles/text_style.dart';
-import 'package:bazara_optician_app/core/utils/route.dart';
+import 'package:optician_app/core/provider/event_provider.dart';
+import 'package:optician_app/core/shered_widget/custom_app_bar.dart';
+import 'package:optician_app/core/styles/Colors.dart';
+import 'package:optician_app/core/styles/text_style.dart';
+import 'package:optician_app/core/utils/route.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';

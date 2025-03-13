@@ -10,7 +10,7 @@
     <uses-permission android:name="android.permission.VIBRATE" />
 
     <application
-        android:label="bazara_optician_app"
+        android:label="optician_app"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
 

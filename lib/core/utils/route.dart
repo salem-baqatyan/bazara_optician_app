@@ -1,6 +1,6 @@
-import 'package:bazara_optician_app/features/customer_reminder_features/customer_reminder_screen.dart';
-import 'package:bazara_optician_app/features/home_screen.dart';
-import 'package:bazara_optician_app/features/invoice_details_features/screens/invoice_details_screen.dart';
+import 'package:optician_app/features/customer_reminder_features/customer_reminder_screen.dart';
+import 'package:optician_app/features/home_screen.dart';
+import 'package:optician_app/features/invoice_details_features/screens/invoice_details_screen.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter/widgets.dart';
 

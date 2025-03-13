@@ -1,8 +1,8 @@
-import 'package:bazara_optician_app/core/shered_widget/custom_app_bar.dart';
-import 'package:bazara_optician_app/core/styles/text_style.dart';
-import 'package:bazara_optician_app/features/invoice_reports_features/widgets/custom_tab_bar_widget.dart';
-import 'package:bazara_optician_app/features/invoice_reports_features/widgets/reports_optometry_widget.dart';
-import 'package:bazara_optician_app/features/invoice_reports_features/widgets/reports_purchases_widget.dart';
+import 'package:optician_app/core/shered_widget/custom_app_bar.dart';
+import 'package:optician_app/core/styles/text_style.dart';
+import 'package:optician_app/features/invoice_reports_features/widgets/custom_tab_bar_widget.dart';
+import 'package:optician_app/features/invoice_reports_features/widgets/reports_optometry_widget.dart';
+import 'package:optician_app/features/invoice_reports_features/widgets/reports_purchases_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 

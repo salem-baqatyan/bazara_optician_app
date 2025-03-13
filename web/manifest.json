@@ -1,6 +1,6 @@
 {
-    "name": "bazara_optician_app",
-    "short_name": "bazara_optician_app",
+    "name": "optician_app",
+    "short_name": "optician_app",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",

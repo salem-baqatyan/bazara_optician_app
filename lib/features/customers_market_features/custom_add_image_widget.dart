@@ -1,7 +1,7 @@
 import 'dart:io';
 
-import 'package:bazara_optician_app/core/styles/Colors.dart';
-import 'package:bazara_optician_app/core/styles/text_style.dart';
+import 'package:optician_app/core/styles/Colors.dart';
+import 'package:optician_app/core/styles/text_style.dart';
 import 'package:dotted_border/dotted_border.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';

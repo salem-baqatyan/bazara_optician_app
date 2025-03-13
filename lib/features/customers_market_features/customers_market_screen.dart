@@ -1,10 +1,10 @@
 import 'dart:io';
-import 'package:bazara_optician_app/core/shered_widget/action_button_widget.dart';
-import 'package:bazara_optician_app/core/shered_widget/custom_app_bar.dart';
-import 'package:bazara_optician_app/core/styles/Colors.dart';
-import 'package:bazara_optician_app/core/styles/text_style.dart';
-import 'package:bazara_optician_app/features/customers_market_features/custom_add_image_widget.dart';
-import 'package:bazara_optician_app/core/shered_widget/info_rich_field_widget.dart';
+import 'package:optician_app/core/shered_widget/action_button_widget.dart';
+import 'package:optician_app/core/shered_widget/custom_app_bar.dart';
+import 'package:optician_app/core/styles/Colors.dart';
+import 'package:optician_app/core/styles/text_style.dart';
+import 'package:optician_app/features/customers_market_features/custom_add_image_widget.dart';
+import 'package:optician_app/core/shered_widget/info_rich_field_widget.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';

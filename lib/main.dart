@@ -1,7 +1,7 @@
-import 'package:bazara_optician_app/core/provider/event_provider.dart';
-import 'package:bazara_optician_app/core/utils/route.dart';
-import 'package:bazara_optician_app/notification_service.dart';
-import 'package:bazara_optician_app/sqldb.dart';
+import 'package:optician_app/core/provider/event_provider.dart';
+import 'package:optician_app/core/utils/route.dart';
+import 'package:optician_app/notification_service.dart';
+import 'package:optician_app/sqldb.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';

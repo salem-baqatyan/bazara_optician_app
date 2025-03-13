@@ -1,4 +1,4 @@
-// import 'package:bazara_optician_app/notification_service.dart';
+// import 'package:optician_app/notification_service.dart';
 // import 'package:flutter/material.dart';
 
 // class AlarmScreen extends StatefulWidget {

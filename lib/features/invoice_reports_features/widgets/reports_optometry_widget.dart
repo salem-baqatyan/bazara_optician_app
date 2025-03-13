@@ -1,5 +1,5 @@
-import 'package:bazara_optician_app/core/utils/route.dart';
-import 'package:bazara_optician_app/sqldb.dart';
+import 'package:optician_app/core/utils/route.dart';
+import 'package:optician_app/sqldb.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 

@@ -1,15 +1,15 @@
 // ignore_for_file: non_constant_identifier_names
 
-import 'package:bazara_optician_app/core/function/shared_function.dart';
-import 'package:bazara_optician_app/core/shered_widget/action_button_widget.dart';
-import 'package:bazara_optician_app/core/shered_widget/custom_app_bar.dart';
-import 'package:bazara_optician_app/core/shered_widget/info_text_field_widget.dart';
-import 'package:bazara_optician_app/core/styles/Colors.dart';
-import 'package:bazara_optician_app/core/styles/text_style.dart';
-import 'package:bazara_optician_app/features/invoice_details_features/widgets/invoice_optometry_view_widget.dart';
-import 'package:bazara_optician_app/features/invoice_details_features/widgets/invoice_purchases_view_widget.dart';
-import 'package:bazara_optician_app/core/shered_widget/section_title_widget.dart';
-import 'package:bazara_optician_app/sqldb.dart';
+import 'package:optician_app/core/function/shared_function.dart';
+import 'package:optician_app/core/shered_widget/action_button_widget.dart';
+import 'package:optician_app/core/shered_widget/custom_app_bar.dart';
+import 'package:optician_app/core/shered_widget/info_text_field_widget.dart';
+import 'package:optician_app/core/styles/Colors.dart';
+import 'package:optician_app/core/styles/text_style.dart';
+import 'package:optician_app/features/invoice_details_features/widgets/invoice_optometry_view_widget.dart';
+import 'package:optician_app/features/invoice_details_features/widgets/invoice_purchases_view_widget.dart';
+import 'package:optician_app/core/shered_widget/section_title_widget.dart';
+import 'package:optician_app/sqldb.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:screenshot/screenshot.dart';

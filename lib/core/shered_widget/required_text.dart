@@ -1,5 +1,5 @@
-import 'package:bazara_optician_app/core/styles/Colors.dart';
-import 'package:bazara_optician_app/core/styles/text_style.dart';
+import 'package:optician_app/core/styles/Colors.dart';
+import 'package:optician_app/core/styles/text_style.dart';
 import 'package:flutter/material.dart';
 
 class RequiredText extends StatelessWidget {

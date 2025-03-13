@@ -1,16 +1,16 @@
 // ignore_for_file: non_constant_identifier_names
 
-import 'package:bazara_optician_app/core/provider/event_provider.dart';
-import 'package:bazara_optician_app/core/shered_widget/action_button_widget.dart';
-import 'package:bazara_optician_app/core/shered_widget/custom_app_bar.dart';
-import 'package:bazara_optician_app/core/shered_widget/section_title_widget.dart';
-import 'package:bazara_optician_app/core/shered_widget/type_radio_widget.dart';
-import 'package:bazara_optician_app/core/styles/Colors.dart';
-import 'package:bazara_optician_app/core/shered_widget/add_from_contacts_widget.dart';
-import 'package:bazara_optician_app/core/shered_widget/info_text_field_widget.dart';
-import 'package:bazara_optician_app/features/new_invoice_features/widgets/invoice_optometry_widget.dart';
-import 'package:bazara_optician_app/features/new_invoice_features/widgets/invoice_purchases_widget.dart';
-import 'package:bazara_optician_app/sqldb.dart';
+import 'package:optician_app/core/provider/event_provider.dart';
+import 'package:optician_app/core/shered_widget/action_button_widget.dart';
+import 'package:optician_app/core/shered_widget/custom_app_bar.dart';
+import 'package:optician_app/core/shered_widget/section_title_widget.dart';
+import 'package:optician_app/core/shered_widget/type_radio_widget.dart';
+import 'package:optician_app/core/styles/Colors.dart';
+import 'package:optician_app/core/shered_widget/add_from_contacts_widget.dart';
+import 'package:optician_app/core/shered_widget/info_text_field_widget.dart';
+import 'package:optician_app/features/new_invoice_features/widgets/invoice_optometry_widget.dart';
+import 'package:optician_app/features/new_invoice_features/widgets/invoice_purchases_widget.dart';
+import 'package:optician_app/sqldb.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_native_contact_picker/flutter_native_contact_picker.dart';
 import 'package:flutter_native_contact_picker/model/contact.dart';

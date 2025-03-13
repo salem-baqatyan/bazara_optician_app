@@ -1,5 +1,5 @@
-import 'package:bazara_optician_app/notification_service.dart';
-import 'package:bazara_optician_app/sqldb.dart';
+import 'package:optician_app/notification_service.dart';
+import 'package:optician_app/sqldb.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:sqflite/sqflite.dart';

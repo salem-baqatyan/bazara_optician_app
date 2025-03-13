@@ -1,8 +1,8 @@
 // ignore_for_file: non_constant_identifier_names
 
-import 'package:bazara_optician_app/core/shered_widget/cell_table_widget.dart';
-import 'package:bazara_optician_app/core/shered_widget/info_hint_field_widget.dart';
-import 'package:bazara_optician_app/features/invoice_details_features/widgets/info_disable_field_widget.dart';
+import 'package:optician_app/core/shered_widget/cell_table_widget.dart';
+import 'package:optician_app/core/shered_widget/info_hint_field_widget.dart';
+import 'package:optician_app/features/invoice_details_features/widgets/info_disable_field_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
