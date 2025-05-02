@@ -5,24 +5,28 @@ import 'package:optician_app/core/styles/text_style.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
-class CustomTextFormWidget extends StatelessWidget {
+class InfoRichFieldWidget extends StatelessWidget {
   final TextInputType keybord;
+  final TextDirection textDirection;
   final TextEditingController textController;
   final String text;
   final String labelText;
   final double width;
   final double height;
-  final int maxLines;
+  final int? maxLines;
+  final bool? isEnable;
 
-  const CustomTextFormWidget({
-    this.keybord = TextInputType.text,
+  const InfoRichFieldWidget({
+    this.keybord = TextInputType.multiline,
+    this.textDirection = TextDirection.rtl,
     super.key,
     required this.textController,
     required this.text,
     this.labelText = "",
     this.width = 147.0,
     this.height = 40.0,
-    this.maxLines = 1,
+    this.maxLines,
+    this.isEnable = true,
   });
 
   @override
@@ -35,36 +39,40 @@ class CustomTextFormWidget extends StatelessWidget {
         SizedBox(
           width: width.w,
           height: height.h,
-          child: TextFormField(
-            keyboardType: keybord,
-            decoration: InputDecoration(
-              hintText: 'أكتب هنا...',
-              hintStyle: KTextStyle.textStyle12.copyWith(
-                color: AppColors.greyLight,
-              ),
-              enabledBorder: OutlineInputBorder(
-                borderSide: const BorderSide(
-                  color: AppColors.greyBorder,
-                  width: 1.0,
+          child: AbsorbPointer(
+            absorbing: isEnable == true ? false : true,
+            child: TextFormField(
+              keyboardType: keybord,
+              textDirection: textDirection,
+              decoration: InputDecoration(
+                hintText: 'أكتب هنا...',
+                hintStyle: KTextStyle.textStyle12.copyWith(
+                  color: AppColors.greyLight,
                 ),
-                borderRadius: BorderRadius.circular(5.0),
-              ),
-              focusedBorder: OutlineInputBorder(
-                borderSide: const BorderSide(
-                  color: AppColors.primary,
-                  width: 1.0,
+                enabledBorder: OutlineInputBorder(
+                  borderSide: const BorderSide(
+                    color: AppColors.greyBorder,
+                    width: 1.0,
+                  ),
+                  borderRadius: BorderRadius.circular(5.0),
                 ),
-                borderRadius: BorderRadius.circular(5.0),
-              ),
-              border: OutlineInputBorder(
-                borderSide: BorderSide(
-                  color: AppColors.primaryBackground,
-                  width: 1.w,
+                focusedBorder: OutlineInputBorder(
+                  borderSide: const BorderSide(
+                    color: AppColors.primary,
+                    width: 1.0,
+                  ),
+                  borderRadius: BorderRadius.circular(5.0),
+                ),
+                border: OutlineInputBorder(
+                  borderSide: BorderSide(
+                    color: AppColors.primaryBackground,
+                    width: 1.w,
+                  ),
                 ),
               ),
+              controller: textController,
+              maxLines: maxLines,
             ),
-            controller: textController,
-            maxLines: maxLines,
           ),
         ),
       ],

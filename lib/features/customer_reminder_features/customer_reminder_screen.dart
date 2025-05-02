@@ -1,12 +1,8 @@
-import 'dart:io';
 import 'package:optician_app/core/const/my_flutter_app_icons.dart';
-import 'package:optician_app/core/shered_widget/action_button_widget.dart';
 import 'package:optician_app/core/shered_widget/add_from_contacts_widget.dart';
 import 'package:optician_app/core/shered_widget/custom_app_bar.dart';
 import 'package:optician_app/core/shered_widget/info_text_field_widget.dart';
 import 'package:optician_app/core/styles/Colors.dart';
-import 'package:optician_app/core/styles/text_style.dart';
-import 'package:optician_app/features/customers_market_features/custom_add_image_widget.dart';
 import 'package:optician_app/core/shered_widget/info_rich_field_widget.dart';
 import 'package:optician_app/sqldb.dart';
 import 'package:flutter/cupertino.dart';
@@ -14,18 +10,18 @@ import 'package:flutter/material.dart';
 import 'package:flutter_native_contact_picker/flutter_native_contact_picker.dart';
 import 'package:flutter_native_contact_picker/model/contact.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:image_picker/image_picker.dart';
-import 'package:share_plus/share_plus.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class CustomerReminderScreen extends StatefulWidget {
   final int id;
   final String isDefaultType;
+
   const CustomerReminderScreen({
     super.key,
     required this.id,
     required this.isDefaultType,
   });
+
   @override
   State<CustomerReminderScreen> createState() => _CustomerReminderScreenState();
 }
@@ -34,55 +30,83 @@ class _CustomerReminderScreenState extends State<CustomerReminderScreen> {
   final FlutterNativeContactPicker _contactPicker =
       FlutterNativeContactPicker();
 
-  late TextEditingController name = TextEditingController(
-    text: list[0]['name'],
-  );
-  late TextEditingController phone = TextEditingController(
-    text: list[0]['phone'],
-  );
-  late TextEditingController message = TextEditingController(text: messageType);
+  TextEditingController name = TextEditingController();
+  TextEditingController phone = TextEditingController();
+  TextEditingController message = TextEditingController();
 
   SqlDb sqlDb = SqlDb();
   List list = [];
-  String? isDefaultType;
-  int? id;
-  String messageType = "";
+  bool isLoading = true; // ⬅️ متغير لتحديد ما إذا كانت البيانات تُحمّل
+
   @override
   void initState() {
     super.initState();
-    id = widget.id;
-    isDefaultType = widget.isDefaultType;
     readData();
   }
 
   Future<void> readData() async {
+    int id = widget.id;
+    String isDefaultType = widget.isDefaultType;
+    String messageType = "";
+    print(isDefaultType);
     if (isDefaultType == "Optometry") {
-      list.clear();
       List<Map> response = await sqlDb.readData(
         "SELECT * FROM ClientOptometry WHERE id = $id",
       );
-      list.addAll(response);
-      messageType =
-          'موعد مراجعة فحص نظرك قد اقترب حفاظا على صحة عينيك يرجى زيارتنا...';
+      list = response;
+
+      // جلب الرسالة المناسبة من جدول Messages حسب نوع العميل
+      List<Map> messageResponse = await sqlDb.readData(
+        "SELECT * FROM Messages WHERE type_message = '$isDefaultType'",
+      );
+
+      if (messageResponse.isNotEmpty) {
+        messageType = messageResponse[0]['messages'] ?? '';
+      }
     } else if (isDefaultType == "Purchases") {
-      list.clear();
       List<Map> response = await sqlDb.readData(
         "SELECT * FROM ClientPurchases WHERE id = $id",
       );
-      list.addAll(response);
-      messageType = 'نظارتك تم تجهيزها يرجى الحضور لستلامها...';
-    } else if (isDefaultType == "Other") {
-      list.clear();
-      List<Map> response = [
+      list = response;
+      // جلب الرسالة المناسبة من جدول Messages حسب نوع العميل
+      List<Map> messageResponse = await sqlDb.readData(
+        "SELECT * FROM Messages WHERE type_message = '$isDefaultType'",
+      );
+
+      if (messageResponse.isNotEmpty) {
+        messageType = messageResponse[0]['messages'] ?? '';
+      }
+    } else {
+      list = [
         {'name': '', 'phone': ''},
       ];
-      list.addAll(response);
+      messageType = '';
     }
-    if (mounted) setState(() {});
+    if (mounted && list.isNotEmpty) {
+      name.text = list[0]['name'] ?? '';
+      phone.text = list[0]['phone'] ?? '';
+      message.text = messageType;
+    }
+
+    setState(() {
+      isLoading = false;
+    });
+  }
+
+  String validatePhone(String value) {
+    if (value.isEmpty) return 'مطلوب إدخال رقم الجوال';
+    if (!RegExp(r'^(7\d{8}|0\d{7})$').hasMatch(value)) {
+      return 'رقم الجوال يجب أن يبدأ بـ7 أو 0 ويتبعه 7 أرقام';
+    }
+    return '';
   }
 
   @override
   Widget build(BuildContext context) {
+    if (isLoading) {
+      return Scaffold(body: Center(child: CircularProgressIndicator()));
+    }
+
     return SafeArea(
       child: Scaffold(
         body: Container(
@@ -105,15 +129,25 @@ class _CustomerReminderScreenState extends State<CustomerReminderScreen> {
                             onTap: () async {
                               Contact? contact =
                                   await _contactPicker.selectContact();
-                              setState(() {
-                                contact == null ? null : [contact];
-                              });
-                              name = TextEditingController(
-                                text: contact!.fullName ?? 'No name',
-                              );
-                              phone = TextEditingController(
-                                text: contact.phoneNumbers?.first ?? 'No phone',
-                              );
+                              if (contact != null) {
+                                String rawPhone =
+                                    contact.phoneNumbers?.first ?? 'No phone';
+                                String cleanedPhone = rawPhone.replaceAll(
+                                  RegExp(r'\D'),
+                                  '',
+                                );
+
+                                if (cleanedPhone.startsWith('967')) {
+                                  cleanedPhone = cleanedPhone.substring(3);
+                                } else if (cleanedPhone.startsWith('00967')) {
+                                  cleanedPhone = cleanedPhone.substring(5);
+                                }
+
+                                setState(() {
+                                  name.text = contact.fullName ?? 'No name';
+                                  phone.text = cleanedPhone;
+                                });
+                              }
                             },
                           ),
                           SizedBox(height: 20.h),
@@ -127,9 +161,10 @@ class _CustomerReminderScreenState extends State<CustomerReminderScreen> {
                             title: 'رقم العميل',
                             controller: phone,
                             keyboardType: TextInputType.phone,
+                            validator: validatePhone,
                           ),
                           SizedBox(height: 20.h),
-                          CustomTextFormWidget(
+                          InfoRichFieldWidget(
                             textController: message,
                             text: 'رسالة العميل',
                             width: 350.w,

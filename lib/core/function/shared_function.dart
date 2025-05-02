@@ -53,6 +53,7 @@ class SharedFunction {
     );
   }
 
+  /////////////////////////////////////////////////////////////////////////////////////////////////////////
   static Future<dynamic> generateScreenshot(
     ScreenshotController screenshotController,
   ) async {

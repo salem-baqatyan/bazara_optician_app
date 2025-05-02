@@ -12,17 +12,17 @@ class NameRouters {
 
 abstract class AppRouter {
   static const khomeScreen = '/';
-  static NameRouters storeRouters = NameRouters();
+  static NameRouters nameRouters = NameRouters();
   static final router = GoRouter(
     routes: [
       // Name Routes
       GoRoute(
-        path: AppRouter.storeRouters.khomeScreen,
+        path: AppRouter.nameRouters.khomeScreen,
         builder: (context, state) => const HomeScreen(),
       ),
 
       GoRoute(
-        path: AppRouter.storeRouters.kInvoiceDetailsScreen,
+        path: AppRouter.nameRouters.kInvoiceDetailsScreen,
         builder: (context, state) {
           final List<dynamic> args = state.extra as List<dynamic>;
           final int id = args[0];
@@ -32,7 +32,7 @@ abstract class AppRouter {
       ),
 
       GoRoute(
-        path: AppRouter.storeRouters.kCustomerReminderScreen,
+        path: AppRouter.nameRouters.kCustomerReminderScreen,
         builder: (context, state) {
           final List<dynamic> args = state.extra as List<dynamic>;
           final int id = args[0];

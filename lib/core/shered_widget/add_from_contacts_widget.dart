@@ -13,31 +13,44 @@ class AddFromContactsWidget extends StatelessWidget {
     return Align(
       alignment: Alignment.center,
       child: SizedBox(
-        height: 125.h,
-        width: 125.w,
-        child: DottedBorder(
-          color: AppColors.primary,
-          strokeWidth: 1.w,
-          dashPattern: [16, 3],
+        height: 90.h, // تصغير الحجم
+        width: 90.w, // تصغير الحجم
+        child: Card(
+          // استخدام Card بدل DottedBorder
+          elevation: 1.5, // ظل خفيف
+          color: AppColors.backgroundColor, // لون خلفية الكارت
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(8.r), // حواف دائرية
+            side: BorderSide(
+              color: AppColors.primary.withOpacity(0.3),
+              width: 1.w,
+            ), // حدود اختيارية
+          ),
           child: InkWell(
             onTap: onTap,
-            child: Container(
-              color: AppColors.backgroundColor,
-              alignment: Alignment.center,
-              child: Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Icon(Icons.add, size: 75.sp, color: AppColors.greenDark),
-                    Text(
-                      'أضافة من جهات الاتصال',
-                      style: KTextStyle.textStyle9.copyWith(
-                        color: AppColors.blackDark,
-                      ),
+            borderRadius: BorderRadius.circular(8.r), // لمطابقة حواف الكارت
+            child: Padding(
+              // تقليل الـ padding قليلاً إذا لزم الأمر
+              padding: const EdgeInsets.all(8.0),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(
+                    Icons.contacts_outlined, // أيقونة أنسب
+                    size: 40.sp, // تصغير الأيقونة
+                    color: AppColors.primary, // استخدام لون الثيم
+                  ),
+                  SizedBox(height: 4.h), // مسافة صغيرة
+                  Text(
+                    'جهات الاتصال', // يمكن اختصار النص
+                    textAlign: TextAlign.center,
+                    style: KTextStyle.textStyle9.copyWith(
+                      // قد تحتاج لتعديل حجم الخط
+                      color: AppColors.blackDark,
+                      fontSize: 10.sp, // مثال لتصغير الخط
                     ),
-                  ],
-                ),
+                  ),
+                ],
               ),
             ),
           ),

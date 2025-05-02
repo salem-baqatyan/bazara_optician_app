@@ -61,18 +61,19 @@ class _NewInvoiceScreenState extends State<NewInvoiceScreen> {
   late TextEditingController review_date = TextEditingController();
   ///////////////////////////////////////////////////
   late TextEditingController frame_type = TextEditingController();
+
   late TextEditingController frame_model = TextEditingController();
+  late TextEditingController lense_type = TextEditingController();
+  List<String> lensItems = [];
 
   late TextEditingController R_SPH = TextEditingController();
   late TextEditingController R_CYL = TextEditingController();
   late TextEditingController R_AXIS = TextEditingController();
   late TextEditingController R_ADD = TextEditingController();
-  late TextEditingController R_CLR = TextEditingController();
   late TextEditingController L_SPH = TextEditingController();
   late TextEditingController L_CYL = TextEditingController();
   late TextEditingController L_AXIS = TextEditingController();
   late TextEditingController L_ADD = TextEditingController();
-  late TextEditingController L_CLR = TextEditingController();
 
   late TextEditingController total_price = TextEditingController();
   late TextEditingController paid_price = TextEditingController();
@@ -101,23 +102,21 @@ class _NewInvoiceScreenState extends State<NewInvoiceScreen> {
 
     L_P_D.clear();
     DR.clear();
-    review_date.clear();
   }
 
   void clearPurchases() {
     frame_type.clear();
     frame_model.clear();
+    lense_type.clear();
 
     R_SPH.clear();
     R_CYL.clear();
     R_AXIS.clear();
     R_ADD.clear();
-    R_CLR.clear();
     L_SPH.clear();
     L_CYL.clear();
     L_AXIS.clear();
     L_ADD.clear();
-    L_CLR.clear();
 
     total_price.clear();
     paid_price.clear();
@@ -132,19 +131,15 @@ class _NewInvoiceScreenState extends State<NewInvoiceScreen> {
     int month = 6 + now.month;
     int day = now.day;
     DateTime result = DateTime(year, month, day);
-    invoice_date = TextEditingController(
-      text: DateFormat('yyyy/MM/dd').format(now),
-    );
-    review_date = TextEditingController(
-      text: DateFormat('yyyy/MM/dd').format(result),
-    );
+    invoice_date.text = DateFormat('yyyy/MM/dd').format(now);
+    review_date.text = DateFormat('yyyy/MM/dd').format(result);
   }
 
   Future addData() async {
     // ✅ دالة لتحويل "0.00" إلى "PR" والحقول الفارغة إلى "-"
     String formatValue(String value) {
       if (value.trim().isEmpty) return "-"; // إذا كان الحقل فارغًا ضع "-"
-      if (value.trim() == "0.00") return "PR"; // إذا كان الحقل "0.00" ضع "PR"
+      if (value.trim() == "0.00") return "PL"; // إذا كان الحقل "0.00" ضع "PL"
       return value;
     }
 
@@ -190,24 +185,31 @@ class _NewInvoiceScreenState extends State<NewInvoiceScreen> {
             "SELECT id FROM ClientOptometry ORDER BY id DESC LIMIT 1",
           );
           int invoiceId = lastInvoice[0]['id'];
+          int response = await sqlDb.insertData('''
+          INSERT INTO Clients
+          (client_name ,client_phone ,id_invoice ,type_invoice ,date_invoice ,date_reminder)
+          VALUES
+          ("${name.text}", "${phone.text}", $invoiceId, "Optometry" , "${DateTime.now().toIso8601String()}" , "${review_date.text}")
+          ''');
+          if (response > 0) {
+            // ✅ إضافة الحدث إلى التقويم
+            Provider.of<EventProvider>(context, listen: false).addEvent(
+              invoiceId,
+              'مراجعة فحص النظر لـ ${name.text}', // اسم الحدث
+              review_date.text,
+              "Optometry", // ✅ النوع الصحيح
+            );
+            name.clear();
+            phone.clear();
+            clearOptometry();
+            reloadDate();
 
-          // ✅ إضافة الحدث إلى التقويم
-          Provider.of<EventProvider>(context, listen: false).addEvent(
-            invoiceId,
-            'مراجعة فحص النظر لـ ${name.text}', // اسم الحدث
-            review_date.text,
-            "Optometry", // ✅ النوع الصحيح
-          );
-          name.clear();
-          phone.clear();
-          clearOptometry();
-          reloadDate();
-
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('تمت إضافة فاتورة فحص النظر بنجاح...'),
-            ),
-          );
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Text('تمت إضافة فاتورة فحص النظر بنجاح...'),
+              ),
+            );
+          }
         }
       }
     } else {
@@ -224,21 +226,19 @@ class _NewInvoiceScreenState extends State<NewInvoiceScreen> {
         R_CYL.text = formatValue(R_CYL.text);
         R_AXIS.text = formatValue(R_AXIS.text);
         R_ADD.text = formatValue(R_ADD.text);
-        R_CLR.text = formatValue(R_CLR.text);
         L_SPH.text = formatValue(L_SPH.text);
         L_CYL.text = formatValue(L_CYL.text);
         L_AXIS.text = formatValue(L_AXIS.text);
         L_ADD.text = formatValue(L_ADD.text);
-        L_CLR.text = formatValue(L_CLR.text);
 
         int response = await sqlDb.insertData('''
       INSERT INTO ClientPurchases 
-      (name, phone, frame_type, frame_model, R_SPH, R_CYL, R_AXIS, R_ADD, R_CLR, 
-      L_SPH, L_CYL, L_AXIS, L_ADD, L_CLR, total_price, paid_price, remaining_price, 
+      (name, phone, frame_type, frame_model, lense_type, R_SPH, R_CYL, R_AXIS, R_ADD,
+      L_SPH, L_CYL, L_AXIS, L_ADD, total_price, paid_price, remaining_price, 
       invoice_date, delvery_date)
       VALUES 
-      ("${name.text}", "${phone.text}", "${frame_type.text}", "${frame_model.text}", "${R_SPH.text}", "${R_CYL.text}", "${R_AXIS.text}", 
-      "${R_ADD.text}", "${R_CLR.text}", "${L_SPH.text}", "${L_CYL.text}", "${L_AXIS.text}", "${L_ADD.text}", "${L_CLR.text}", 
+      ("${name.text}", "${phone.text}", "${frame_type.text}", "${frame_model.text}", "${lense_type.text}", "${R_SPH.text}", "${R_CYL.text}", "${R_AXIS.text}", 
+      "${R_ADD.text}", "${L_SPH.text}", "${L_CYL.text}", "${L_AXIS.text}", "${L_ADD.text}", 
       "${total_price.text}", "${paid_price.text}", "${remaining_price.text}", "${invoice_date.text}", "${delvery_date.text}")
       ''');
 
@@ -248,32 +248,34 @@ class _NewInvoiceScreenState extends State<NewInvoiceScreen> {
             "SELECT id FROM ClientPurchases ORDER BY id DESC LIMIT 1",
           );
           int invoiceId = lastInvoice[0]['id'];
+          int response = await sqlDb.insertData('''
+          INSERT INTO Clients
+          (client_name ,client_phone ,id_invoice ,type_invoice ,date_invoice ,date_reminder)
+          VALUES
+          ("${name.text}", "${phone.text}", $invoiceId, "Purchases" , "${DateTime.now().toIso8601String()}" , "${delvery_date.text}")
+          ''');
+          if (response > 0) {
+            // ✅ إضافة الحدث إلى التقويم
+            Provider.of<EventProvider>(context, listen: false).addEvent(
+              invoiceId,
+              'تسليم النظارة لـ ${name.text}', // اسم الحدث
+              delvery_date.text,
+              "Purchases", // ✅ النوع الصحيح
+            );
+            name.clear();
+            phone.clear();
+            clearPurchases();
+            reloadDate();
 
-          // ✅ إضافة الحدث إلى التقويم
-          Provider.of<EventProvider>(context, listen: false).addEvent(
-            invoiceId,
-            'تسليم النظارة لـ ${name.text}', // اسم الحدث
-            delvery_date.text,
-            "Purchases", // ✅ النوع الصحيح
-          );
-          name.clear();
-          phone.clear();
-          clearPurchases();
-          reloadDate();
-
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('تمت إضافة فاتورة شراء النظارة بنجاح...'),
-            ),
-          );
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Text('تمت إضافة فاتورة شراء النظارة بنجاح...'),
+              ),
+            );
+          }
         }
       }
     }
-  }
-
-  deleteAll() async {
-    await sqlDb.deleteData("DELETE FROM ClientPurchases ");
-    setState(() {});
   }
 
   void onChanged() {
@@ -291,11 +293,28 @@ class _NewInvoiceScreenState extends State<NewInvoiceScreen> {
     });
   }
 
+  String validatePhone(String value) {
+    if (value.isEmpty) return 'مطلوب إدخال رقم الجوال';
+    if (!RegExp(r'^(7\d{8}|0\d{7})$').hasMatch(value))
+      return 'رقم الجوال يجب أن يبدأ بـ7 أو 0 ويتبعه 7 أرقام';
+    return '';
+  }
+
+  Future<void> loadLenses() async {
+    final response = await sqlDb.readData("SELECT name FROM Lenses");
+    setState(() {
+      lensItems = List<String>.from(
+        response.map((item) => item['name'].toString()),
+      );
+    });
+  }
+
   @override
   void initState() {
     super.initState();
     isDefaultValue = selectedOption == 'Optometry';
     reloadDate();
+    loadLenses();
   }
 
   @override
@@ -316,7 +335,6 @@ class _NewInvoiceScreenState extends State<NewInvoiceScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              CustomAppBar(tital: 'اضافة فاتورة جديدة'),
               Expanded(
                 child: Padding(
                   padding: const EdgeInsets.all(24.0),
@@ -343,30 +361,45 @@ class _NewInvoiceScreenState extends State<NewInvoiceScreen> {
                                         Contact? contact =
                                             await _contactPicker
                                                 .selectContact();
-                                        setState(() {
-                                          contact == null ? null : [contact];
-                                        });
-                                        name = TextEditingController(
-                                          text: contact!.fullName ?? 'No name',
-                                        );
-                                        phone = TextEditingController(
-                                          text:
+                                        if (contact != null) {
+                                          String rawPhone =
                                               contact.phoneNumbers?.first ??
-                                              'No phone',
-                                        );
+                                              'No phone';
+
+                                          // تنظيف الرقم: إزالة كل شيء عدا الأرقام
+                                          String cleanedPhone = rawPhone
+                                              .replaceAll(RegExp(r'\D'), '');
+
+                                          // إزالة رمز الدولة إذا كان موجود (مثل 967 أو 00967)
+                                          if (cleanedPhone.startsWith('967')) {
+                                            cleanedPhone = cleanedPhone
+                                                .substring(3);
+                                          } else if (cleanedPhone.startsWith(
+                                            '00967',
+                                          )) {
+                                            cleanedPhone = cleanedPhone
+                                                .substring(5);
+                                          }
+
+                                          setState(() {
+                                            name.text =
+                                                contact.fullName ?? 'No name';
+                                            phone.text = cleanedPhone;
+                                          });
+                                        }
                                       },
                                     ),
-                                    SizedBox(height: 20.h),
+                                    SizedBox(height: 10.h),
                                     InfoTextFieldWidget(
                                       title: 'اسم العميل',
                                       controller: name,
                                       keyboardType: TextInputType.text,
                                     ),
-                                    SizedBox(height: 10.h),
                                     InfoTextFieldWidget(
                                       title: 'رقم العميل',
                                       controller: phone,
                                       keyboardType: TextInputType.phone,
+                                      validator: validatePhone,
                                     ),
                                   ],
                                 ),
@@ -429,16 +462,21 @@ class _NewInvoiceScreenState extends State<NewInvoiceScreen> {
                                           invoice_date: invoice_date,
                                           frame_type: frame_type,
                                           frame_model: frame_model,
+                                          lense_type: lense_type,
+                                          lensItems: lensItems,
+                                          onChangedDropdown: (value) {
+                                            setState(() {
+                                              lense_type.text = value!;
+                                            });
+                                          },
                                           R_SPH: R_SPH,
                                           R_CYL: R_CYL,
                                           R_AXIS: R_AXIS,
                                           R_ADD: R_ADD,
-                                          R_CLR: R_CLR,
                                           L_SPH: L_SPH,
                                           L_CYL: L_CYL,
                                           L_AXIS: L_AXIS,
                                           L_ADD: L_ADD,
-                                          L_CLR: L_CLR,
                                           total_price: total_price,
                                           paid_price: paid_price,
                                           remaining_price: remaining_price,
@@ -459,7 +497,7 @@ class _NewInvoiceScreenState extends State<NewInvoiceScreen> {
                             addData();
                           },
                         ),
-                        SizedBox(height: 20.h),
+                        SizedBox(height: 120.h),
                       ],
                     ),
                   ),

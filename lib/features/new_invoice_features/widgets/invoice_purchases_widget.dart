@@ -1,7 +1,9 @@
 // ignore_for_file: non_constant_identifier_names
 
+import 'package:dropdown_button2/dropdown_button2.dart';
 import 'package:optician_app/core/shered_widget/cell_table_widget.dart';
 import 'package:optician_app/core/shered_widget/cell_text_field_widget.dart';
+import 'package:optician_app/core/shered_widget/custom_dropdown_button_widget.dart';
 import 'package:optician_app/features/new_invoice_features/widgets/info_date_field_widget.dart';
 import 'package:optician_app/core/shered_widget/info_hint_field_widget.dart';
 import 'package:flutter/material.dart';
@@ -12,16 +14,18 @@ class InvoicePurchasesWidget extends StatelessWidget {
   final TextEditingController frame_type;
   final TextEditingController frame_model;
 
+  final TextEditingController lense_type;
+  final List<String> lensItems;
+  final void Function(String?) onChangedDropdown;
+
   final TextEditingController R_SPH;
   final TextEditingController R_CYL;
   final TextEditingController R_AXIS;
   final TextEditingController R_ADD;
-  final TextEditingController R_CLR;
   final TextEditingController L_SPH;
   final TextEditingController L_CYL;
   final TextEditingController L_AXIS;
   final TextEditingController L_ADD;
-  final TextEditingController L_CLR;
 
   final TextEditingController total_price;
   final TextEditingController paid_price;
@@ -35,16 +39,18 @@ class InvoicePurchasesWidget extends StatelessWidget {
     this.onChanged,
     required this.frame_type,
     required this.frame_model,
+    required this.lense_type,
+    required this.lensItems,
+    required this.onChangedDropdown,
+
     required this.R_SPH,
     required this.R_CYL,
     required this.R_AXIS,
     required this.R_ADD,
-    required this.R_CLR,
     required this.L_SPH,
     required this.L_CYL,
     required this.L_AXIS,
     required this.L_ADD,
-    required this.L_CLR,
     required this.total_price,
     required this.paid_price,
     required this.remaining_price,
@@ -75,6 +81,14 @@ class InvoicePurchasesWidget extends StatelessWidget {
             ),
           ],
         ),
+        SizedBox(height: 10.h),
+        SizedBox(
+          child: CustomDropdownButtonWidget(
+            lense_type: lense_type.text,
+            lensItems: lensItems,
+            onChangedDropdown: onChangedDropdown,
+          ),
+        ),
         SizedBox(height: 30.h),
         Table(
           columnWidths: {
@@ -88,7 +102,6 @@ class InvoicePurchasesWidget extends StatelessWidget {
           children: [
             TableRow(
               children: [
-                CellTableWidget(text: "CLR", bottom: false),
                 CellTableWidget(text: "ADD", right: false, bottom: false),
                 CellTableWidget(text: "AXIS", right: false, bottom: false),
                 CellTableWidget(text: "CYL", right: false, bottom: false),
@@ -98,12 +111,7 @@ class InvoicePurchasesWidget extends StatelessWidget {
             ),
             TableRow(
               children: [
-                CellTextFieldWidget(controller: R_CLR, bottom: false),
-                CellTextFieldWidget(
-                  controller: R_ADD,
-                  right: false,
-                  bottom: false,
-                ),
+                CellTextFieldWidget(controller: R_ADD, bottom: false),
                 CellTextFieldWidget(
                   controller: R_AXIS,
                   right: false,
@@ -128,7 +136,6 @@ class InvoicePurchasesWidget extends StatelessWidget {
                 CellTextFieldWidget(controller: L_CYL, right: false),
                 CellTextFieldWidget(controller: L_AXIS, right: false),
                 CellTextFieldWidget(controller: L_ADD, right: false),
-                CellTextFieldWidget(controller: L_CLR, right: false),
                 CellTableWidget(text: "L", right: false),
               ],
             ),

@@ -1,3 +1,4 @@
+import 'package:flutter/services.dart';
 import 'package:optician_app/core/styles/Colors.dart';
 import 'package:optician_app/core/styles/text_style.dart';
 import 'package:flutter/material.dart';
@@ -48,9 +49,23 @@ class CellTextFieldWidget extends StatelessWidget {
       ),
       padding: EdgeInsets.all(7),
       child: TextFormField(
+        onChanged: (value) {
+          if (value.isNotEmpty) {
+            double decimalValue = double.tryParse(value) ?? 0.00;
+            controller.text = decimalValue.toStringAsFixed(2);
+            controller.selection = TextSelection.fromPosition(
+              TextPosition(offset: controller.text.length),
+            );
+            decimalValue.toStringAsFixed(2);
+          }
+        },
         controller: controller,
-        keyboardType: TextInputType.phone,
-        style: KTextStyle.textStyle13.copyWith(color: AppColors.blackDark),
+        textDirection: TextDirection.ltr,
+        keyboardType: TextInputType.numberWithOptions(decimal: true),
+        inputFormatters: [
+          FilteringTextInputFormatter.allow(RegExp(r'^-?\d*\.?\d{0,1}')),
+        ],
+        style: KTextStyle.textStyle10.copyWith(color: AppColors.blackDark),
         decoration: InputDecoration(
           contentPadding: EdgeInsets.only(bottom: 15.h),
           enabledBorder: OutlineInputBorder(

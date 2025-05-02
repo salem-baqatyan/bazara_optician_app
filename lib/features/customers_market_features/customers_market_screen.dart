@@ -70,7 +70,7 @@ class _MarketScreenState extends State<MarketScreen> {
                             },
                           ),
                           SizedBox(height: 20.h),
-                          CustomTextFormWidget(
+                          InfoRichFieldWidget(
                             textController: detailsAds,
                             text: 'وصف الاعلان',
                             width: 350.w,

@@ -68,21 +68,23 @@ class SqlDb extends ChangeNotifier {
         "phone" TEXT,
         "frame_type" TEXT,
         "frame_model" TEXT,
+        "lense_type" TEXT,
+
         "R_SPH" TEXT, 
         "R_CYL" TEXT,
         "R_AXIS" TEXT,
         "R_ADD" TEXT,
-        "R_CLR" TEXT,
         "L_SPH" TEXT, 
         "L_CYL" TEXT,
         "L_AXIS" TEXT,
         "L_ADD" TEXT,
-        "L_CLR" TEXT,
+
         "total_price" TEXT,
         "paid_price" TEXT,
         "remaining_price" TEXT,
         "invoice_date" TEXT,
-        "delvery_date" TEXT)
+        "delvery_date" TEXT
+        )
 ''');
     batch.execute('''
     CREATE TABLE "Events" (
@@ -93,8 +95,49 @@ class SqlDb extends ChangeNotifier {
       "type_invoice" TEXT
     )
   ''');
+    batch.execute('''
+    CREATE TABLE "Clients" (
+      "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+      "client_name" TEXT,
+      "client_phone" TEXT,
+      "id_invoice" INTEGER,
+      "type_invoice" TEXT,
+      "date_invoice" TEXT,
+      "date_reminder" TEXT
+    )
+  ''');
+    batch.execute('''
+    CREATE TABLE "Messages" (
+      "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+      "messages" TEXT,
+      "type_message" TEXT
+    )
+  ''');
+    batch.execute('''
+    CREATE TABLE "Lenses" (
+      "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+      "name" TEXT
+    )
+  ''');
     await batch.commit();
-    debugPrint('Create Database and Table ====================');
+    debugPrint('✅ Create Database and Tables Done');
+
+    // 🔵 إضافة البيانات الافتراضية مباشرة بعد إنشاء الجداول
+    await db.rawInsert('''
+    INSERT INTO Messages (messages, type_message)
+    VALUES 
+    ("موعد مراجعة فحص نظرك قد اقترب حفاظا على صحة عينيك يرجى زيارتنا...", "Optometry"),
+    ("نظارتك تم تجهيزها يرجى الحضور لاستلامها...", "Purchases")
+  ''');
+    debugPrint('✅ Insert default messages into Messages table');
+    await db.rawInsert('''
+    INSERT INTO Lenses (name)
+    VALUES 
+    ("WT"),
+    ("WT MC"),
+    ("PG X")
+  ''');
+    debugPrint('✅ Insert default lenses into Lenses table');
   }
 
   Future<void> _onUpgrade(Database db, int oldVersion, int newVersion) async {}

@@ -1,3 +1,5 @@
+import 'package:optician_app/core/styles/Colors.dart';
+import 'package:optician_app/core/styles/text_style.dart';
 import 'package:optician_app/core/utils/route.dart';
 import 'package:optician_app/sqldb.dart';
 import 'package:flutter/material.dart';
@@ -24,11 +26,11 @@ class _ReportsOptometryWidgetState extends State<ReportsOptometryWidget> {
   Future readData() async {
     list.clear();
     List<Map> response = await sqlDb.readData(
-      "SELECT * FROM ClientOptometry ORDER BY id ASC",
+      "SELECT * FROM ClientOptometry ORDER BY id DESC",
     );
-    debugPrint('response: $response');
+    // debugPrint('response: $response');
     list.addAll(response);
-    debugPrint('list: $list');
+    // debugPrint('list: $list');
     isLoading = false;
     if (mounted) {
       setState(() {});
@@ -37,7 +39,7 @@ class _ReportsOptometryWidgetState extends State<ReportsOptometryWidget> {
 
   @override
   Widget build(BuildContext context) {
-    return Expanded(
+    return SizedBox(
       child:
           isLoading
               ? Center(child: CircularProgressIndicator()) // مؤشر تحميل
@@ -72,17 +74,59 @@ class _ReportsOptometryWidgetState extends State<ReportsOptometryWidget> {
                   return InkWell(
                     onTap: () {
                       context.push(
-                        AppRouter.storeRouters.kInvoiceDetailsScreen,
+                        AppRouter.nameRouters.kInvoiceDetailsScreen,
                         extra: [list[i]['id'], 'Optometry'],
                       );
                     },
                     child: Card(
-                      margin: EdgeInsets.symmetric(vertical: 4),
-                      child: ListTile(
-                        title: Text(list[i]['name']),
-                        subtitle: Text(
-                          list[i]['phone'],
-                          style: TextStyle(color: Colors.grey),
+                      margin: const EdgeInsets.symmetric(vertical: 8),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: Padding(
+                        padding: const EdgeInsets.all(12),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.end,
+                          children: [
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Text(
+                                  list[i]['name']!,
+                                  style: KTextStyle.textStyle18.copyWith(
+                                    color: AppColors.blackDark,
+                                  ),
+                                ),
+                                Text(
+                                  "رقم الفاتورة: ${list[i]['id']}",
+                                  style: KTextStyle.textStyle14.copyWith(
+                                    color: AppColors.greyLight,
+                                  ),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 8),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Text(
+                                  "📅 ${list[i]["invoice_date"]}",
+                                  style: KTextStyle.textStyle14.copyWith(
+                                    color: AppColors.blackLight,
+                                  ),
+                                ),
+                                Align(
+                                  alignment: Alignment.centerLeft,
+                                  child: Text(
+                                    "📆 ${list[i]["review_date"]}",
+                                    style: KTextStyle.textStyle14.copyWith(
+                                      color: AppColors.greyLight,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ],
                         ),
                       ),
                     ),

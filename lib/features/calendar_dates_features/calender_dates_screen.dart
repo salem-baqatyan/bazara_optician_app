@@ -10,21 +10,22 @@ import 'package:provider/provider.dart';
 import 'package:table_calendar/table_calendar.dart';
 
 class CalenderDatesScreen extends StatefulWidget {
-  const CalenderDatesScreen({super.key});
+  final DateTime? focusedDay;
+  const CalenderDatesScreen({super.key, this.focusedDay});
 
   @override
   State<CalenderDatesScreen> createState() => _CalenderDatesScreenState();
 }
 
 class _CalenderDatesScreenState extends State<CalenderDatesScreen> {
-  DateTime _focusedDay = DateTime.now();
+  late DateTime _focusedDay;
   DateTime? _selectedDay;
   List<Map<String, dynamic>> _selectedEvents = [];
   @override
   void initState() {
     super.initState();
-    _selectedDay = DateUtils.dateOnly(_focusedDay); // إزالة الوقت
-
+    _focusedDay = widget.focusedDay ?? DateTime.now(); // <-- أولاً
+    _selectedDay = DateUtils.dateOnly(_focusedDay); // <-- ثانياً
     // تحميل الأحداث بعد بناء الواجهة
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _updateSelectedEvents(_selectedDay!, _focusedDay);
@@ -51,7 +52,6 @@ class _CalenderDatesScreenState extends State<CalenderDatesScreen> {
       child: Scaffold(
         body: Column(
           children: [
-            CustomAppBar(tital: 'التحقق من المواعيد'),
             TableCalendar(
               weekendDays: [DateTime.saturday, DateTime.friday],
               startingDayOfWeek: StartingDayOfWeek.saturday,
@@ -136,14 +136,58 @@ class _CalenderDatesScreenState extends State<CalenderDatesScreen> {
                         itemCount: _selectedEvents.length,
                         itemBuilder: (context, index) {
                           final event = _selectedEvents[index];
+                          final String rawDate = event['date'].replaceAll(
+                            '/',
+                            '-',
+                          ); // تصحيح الصيغة
+                          final DateTime eventDate = DateTime.parse(rawDate);
 
+                          // جعل اليوم يبدأ من منتصف الليل
+                          final DateTime today = DateTime.now();
+                          final DateTime nowAtMidnight = DateTime(
+                            today.year,
+                            today.month,
+                            today.day,
+                          );
+
+                          // الفرق بالأيام
+                          final Duration difference = eventDate.difference(
+                            nowAtMidnight,
+                          );
+                          final int daysLeft = difference.inDays;
+
+                          String remainingText;
+
+                          if (daysLeft < 0) {
+                            remainingText = "انتهى الحدث";
+                          } else if (daysLeft == 0) {
+                            remainingText = "اليوم هو موعد الحدث";
+                          } else if (daysLeft == 1) {
+                            remainingText = "باقي يوم";
+                          } else if (daysLeft == 2) {
+                            remainingText = "باقي يومان";
+                          } else if (daysLeft <= 30) {
+                            remainingText = "باقي $daysLeft أيام";
+                          } else {
+                            int monthsLeft =
+                                (daysLeft / 30)
+                                    .floor(); // كل 30 يوم تقريباً شهر
+
+                            if (monthsLeft == 1) {
+                              remainingText = "باقي شهر";
+                            } else if (monthsLeft == 2) {
+                              remainingText = "باقي شهران";
+                            } else {
+                              remainingText = "باقي $monthsLeft أشهر";
+                            }
+                          }
                           return InkWell(
                             onTap: () {
                               debugPrint(
                                 "Navigating with id: ${event['id']} and isDefaultValue: ${event['type'] == "Optometry"}",
                               );
                               context.push(
-                                AppRouter.storeRouters.kCustomerReminderScreen,
+                                AppRouter.nameRouters.kCustomerReminderScreen,
                                 extra: [
                                   event['id'],
                                   event['type'] == "Optometry"
@@ -186,35 +230,26 @@ class _CalenderDatesScreenState extends State<CalenderDatesScreen> {
                                     mainAxisAlignment: MainAxisAlignment.center,
                                     children: [
                                       Text(
-                                        "ID: ${event['id']}",
-                                        style: TextStyle(
-                                          fontWeight: FontWeight.bold,
-                                          color:
-                                              Colors
-                                                  .white, // ✅ لون النص أبيض ليتناسب مع الخلفية
-                                        ),
-                                      ),
-                                      Text(
                                         event['type'] == "Optometry"
-                                            ? "🔬 فحص"
-                                            : "👓 شراء",
-                                        style: TextStyle(
-                                          color: Colors.white,
-                                        ), // ✅ لون النص أبيض
+                                            ? "فحص نظر 🔬"
+                                            : "شراء نظارة 👓",
+                                        style: KTextStyle.textStyle14.copyWith(
+                                          color: AppColors.white,
+                                        ),
                                       ),
                                     ],
                                   ),
                                   title: Text(
                                     event['name'],
-                                    style: TextStyle(
-                                      color: Colors.white,
-                                    ), // ✅ لون النص أبيض
+                                    style: KTextStyle.textStyle14.copyWith(
+                                      color: AppColors.white,
+                                    ),
                                   ),
                                   subtitle: Text(
-                                    "التاريخ: ${event['date']}",
-                                    style: TextStyle(
+                                    remainingText,
+                                    style: KTextStyle.textStyle14.copyWith(
                                       color: Colors.white70,
-                                    ), // ✅ لون النص أبيض خفيف
+                                    ),
                                   ),
                                 ),
                               ),
@@ -223,6 +258,7 @@ class _CalenderDatesScreenState extends State<CalenderDatesScreen> {
                         },
                       ),
             ),
+            SizedBox(height: 120.h),
           ],
         ),
       ),
