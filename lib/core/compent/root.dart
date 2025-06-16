@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:optician_app/drawer.dart';
+import 'package:optician_app/core/compent/drawer.dart';
 import 'package:optician_app/core/shered_widget/custom_app_bar.dart';
-import 'package:optician_app/custom_bottom_navigation_bar.dart';
+import 'package:optician_app/core/compent/custom_bottom_navigation_bar.dart';
 import 'package:optician_app/features/calendar_dates_features/calender_dates_screen.dart';
 import 'package:optician_app/features/main_menu_features/statistics_screen.dart';
 import 'package:optician_app/features/new_invoice_features/screens/new_invoice_screen.dart';

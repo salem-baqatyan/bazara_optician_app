@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:optician_app/core/shered_widget/drawer_tile_widget.dart';
 import 'package:optician_app/core/styles/Colors.dart';
+import 'package:optician_app/features/clients_features/clients_screen.dart';
 import 'package:optician_app/features/customer_reminder_features/customer_reminder_screen.dart';
 import 'package:optician_app/features/customers_market_features/customers_market_screen.dart';
 import 'package:optician_app/features/default_settings_features/default_settings_screen.dart';
@@ -70,7 +71,17 @@ class MyDrawer extends StatelessWidget {
                 );
               },
             ),
-
+            DrawerTile(
+              title: 'العملاء',
+              leading: const Icon(Icons.settings, color: AppColors.primary),
+              ontap: () {
+                Navigator.pop(context);
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => ClientsScreen()),
+                );
+              },
+            ),
             DrawerTile(
               title: 'التذكيرات',
               leading: const Icon(Icons.mail, color: AppColors.primary),
@@ -126,17 +137,6 @@ class MyDrawer extends StatelessWidget {
                 );
               },
             ),
-            // DrawerTile(
-            //   title: 'test',
-            //   leading: const Icon(Icons.settings, color: AppColors.primary),
-            //   ontap: () {
-            //     Navigator.pop(context);
-            //     Navigator.push(
-            //       context,
-            //       MaterialPageRoute(builder: (context) => Testo()),
-            //     );
-            //   },
-            // ),
           ],
         ),
       ),

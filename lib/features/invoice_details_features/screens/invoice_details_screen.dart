@@ -36,6 +36,7 @@ class _InvoiceDetailsScreenState extends State<InvoiceDetailsScreen> {
   String? isDefaultType;
   int? id;
 
+  int? clientId;
   late TextEditingController name;
   late TextEditingController phone;
   late TextEditingController invoice_date;
@@ -91,6 +92,7 @@ class _InvoiceDetailsScreenState extends State<InvoiceDetailsScreen> {
     }
 
     if (list.isNotEmpty) {
+      clientId = list[0]['client_id'];
       name = TextEditingController(text: list[0]['name']);
       phone = TextEditingController(text: list[0]['phone']);
       invoice_date = TextEditingController(text: list[0]['invoice_date']);
@@ -112,8 +114,15 @@ class _InvoiceDetailsScreenState extends State<InvoiceDetailsScreen> {
   }
 
   Future updateData() async {
-    if (isDefaultType == "Optometry") {
-      int response = await sqlDb.updateData('''
+    int response = await sqlDb.updateData('''
+    UPDATE Clients SET
+    name = "${name.text}",
+    phone = "${phone.text}"
+    WHERE id = $clientId
+  ''');
+    if (response > 0) {
+      if (isDefaultType == "Optometry") {
+        int response = await sqlDb.updateData('''
         UPDATE ClientOptometry SET
         name ="${name.text}",
         phone ="${phone.text}",
@@ -124,25 +133,25 @@ class _InvoiceDetailsScreenState extends State<InvoiceDetailsScreen> {
         WHERE id = $id
       ''');
 
-      if (response > 0) {
-        int response = await sqlDb.updateData('''
-        UPDATE Clients SET
+        if (response > 0) {
+          int response = await sqlDb.updateData('''
+        UPDATE Process SET
         client_name ="${name.text}",
         client_phone ="${phone.text}",
         date_invoice ="${invoice_date.text}",
         date_reminder ="${review_date.text}"
         WHERE id_invoice = $id
       ''');
-        if (response > 0) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('تمت تعديل فاتورة فحص النظر بنجاح...'),
-            ),
-          );
+          if (response > 0) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Text('تمت تعديل فاتورة فحص النظر بنجاح...'),
+              ),
+            );
+          }
         }
-      }
-    } else {
-      int response = await sqlDb.updateData('''
+      } else {
+        int response = await sqlDb.updateData('''
         UPDATE ClientPurchases SET
         name ="${name.text}",
         phone ="${phone.text}",
@@ -157,21 +166,22 @@ class _InvoiceDetailsScreenState extends State<InvoiceDetailsScreen> {
         WHERE id = $id
       ''');
 
-      if (response > 0) {
-        int response = await sqlDb.updateData('''
-        UPDATE Clients SET
+        if (response > 0) {
+          int response = await sqlDb.updateData('''
+        UPDATE Process SET
         client_name ="${name.text}",
         client_phone ="${phone.text}",
         date_invoice ="${invoice_date.text}",
         date_reminder ="${delvery_date.text}"
         WHERE id_invoice = $id
       ''');
-        if (response > 0) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('تمت تعديل فاتورة شراء النظارة بنجاح...'),
-            ),
-          );
+          if (response > 0) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Text('تمت تعديل فاتورة شراء النظارة بنجاح...'),
+              ),
+            );
+          }
         }
       }
     }

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:optician_app/drawer.dart';
+import 'package:optician_app/core/compent/drawer.dart';
 import 'package:optician_app/core/shered_widget/custom_app_bar.dart';
 import 'package:optician_app/features/calendar_dates_features/calender_dates_screen.dart';
 import 'package:optician_app/sqldb.dart'; // تأكد من صحة المسار
@@ -30,7 +30,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
       var now = DateTime.now().toIso8601String();
       var reminderList = await sqlDb.readData('''
   SELECT client_name, type_invoice, date_reminder
-  FROM Clients
+  FROM Process
   WHERE date_reminder IS NOT NULL AND date_reminder > "$now"
   ORDER BY date_reminder ASC
   LIMIT 3
@@ -38,18 +38,18 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
 
       // آخر زبون
       var lastClientList = await sqlDb.readData(
-        'SELECT * FROM Clients ORDER BY id DESC LIMIT 1',
+        'SELECT * FROM Process ORDER BY id DESC LIMIT 1',
       );
 
       // عدد الزبائن بدون تكرار
       var uniqueClientsList = await sqlDb.readData(
-        'SELECT DISTINCT client_name FROM Clients',
+        'SELECT DISTINCT client_name FROM Process',
       );
 
       // أكثر زبون نشط (مع مراعاة التكرار)
       var activeClientsList = await sqlDb.readData('''
       SELECT client_name, client_phone, COUNT(*) as total
-      FROM Clients
+      FROM Process
       GROUP BY client_name
       ORDER BY total DESC
     ''');
@@ -73,7 +73,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
 
           // عدد فواتير الشراء
           var purchasesCountList = await sqlDb.readData('''
-          SELECT COUNT(*) as count FROM Clients
+          SELECT COUNT(*) as count FROM Process
           WHERE client_name = "$activePhone" AND type_invoice = "Purchases"
         ''');
           purchasesForActiveCount =
@@ -84,7 +84,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
 
           // عدد فواتير الفحص
           var optometryCountList = await sqlDb.readData('''
-          SELECT COUNT(*) as count FROM Clients
+          SELECT COUNT(*) as count FROM Process
           WHERE client_name = "$activePhone" AND type_invoice = "Optometry"
         ''');
           optometryForActiveCount =
@@ -100,7 +100,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
 
       // إجمالي عدد فواتير الشراء
       var totalPurchasesList = await sqlDb.readData('''
-      SELECT COUNT(*) as count FROM Clients
+      SELECT COUNT(*) as count FROM Process
       WHERE type_invoice = "Purchases"
     ''');
       int totalPurchasesCount =
@@ -111,7 +111,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
 
       // إجمالي عدد فواتير الفحص
       var totalOptometryList = await sqlDb.readData('''
-      SELECT COUNT(*) as count FROM Clients
+      SELECT COUNT(*) as count FROM Process
       WHERE type_invoice = "Optometry"
     ''');
       int totalOptometryCount =
@@ -302,7 +302,9 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                                   // استخدام ?? لتوفير قيمة افتراضية إذا كان الاسم null
                                   'الاسم: ${data['lastClient']['client_name'] ?? 'غير معروف'}',
                                 ),
-                                Text('رقم العميل: ${data['lastClient']['id']}'),
+                                Text(
+                                  'رقم العملية: ${data['lastClient']['id']}',
+                                ),
                               ],
                             )
                             : const Text('لا يوجد عملاء بعد.'), // رسالة أوضح

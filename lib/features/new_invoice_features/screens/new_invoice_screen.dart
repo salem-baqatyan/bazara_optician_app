@@ -2,7 +2,6 @@
 
 import 'package:optician_app/core/provider/event_provider.dart';
 import 'package:optician_app/core/shered_widget/action_button_widget.dart';
-import 'package:optician_app/core/shered_widget/custom_app_bar.dart';
 import 'package:optician_app/core/shered_widget/section_title_widget.dart';
 import 'package:optician_app/core/shered_widget/type_radio_widget.dart';
 import 'package:optician_app/core/styles/Colors.dart';
@@ -136,6 +135,24 @@ class _NewInvoiceScreenState extends State<NewInvoiceScreen> {
   }
 
   Future addData() async {
+    // 🔍 البحث عن العميل في جدول Clients
+    List<Map> existingClient = await sqlDb.readData('''
+      SELECT id, points FROM Clients
+      WHERE name = "${name.text}" AND phone = "${phone.text}"
+      ''');
+
+    // 🆔 تعريف متغير ID للعميل
+    int clientId;
+    if (existingClient.isEmpty) {
+      // 🚀 إدراج عميل جديد
+      clientId = await sqlDb.insertData('''
+        INSERT INTO Clients (name, phone, points)
+        VALUES ("${name.text}", "${phone.text}", 0)
+      ''');
+    } else {
+      clientId = existingClient[0]['id'];
+    }
+
     // ✅ دالة لتحويل "0.00" إلى "PR" والحقول الفارغة إلى "-"
     String formatValue(String value) {
       if (value.trim().isEmpty) return "-"; // إذا كان الحقل فارغًا ضع "-"
@@ -167,17 +184,17 @@ class _NewInvoiceScreenState extends State<NewInvoiceScreen> {
         near_L_V_A.text = formatValue(near_L_V_A.text);
 
         int response = await sqlDb.insertData('''
-      INSERT INTO ClientOptometry 
-      (name, phone, dist_R_SPH, dist_R_CYL, dist_R_AXIS, dist_R_V_A, 
-      dist_L_SPH, dist_L_CYL, dist_L_AXIS, dist_L_V_A, near_R_SPH, 
-      near_R_CYL, near_R_AXIS, near_R_V_A, near_L_SPH, near_L_CYL, 
-      near_L_AXIS, near_L_V_A, L_P_D, DR, invoice_date, review_date)
-      VALUES 
-      ("${name.text}", "${phone.text}", "${dist_R_SPH.text}", "${dist_R_CYL.text}", "${dist_R_AXIS.text}", "${dist_R_V_A.text}", 
-      "${dist_L_SPH.text}", "${dist_L_CYL.text}", "${dist_L_AXIS.text}", "${dist_L_V_A.text}", "${near_R_SPH.text}", 
-      "${near_R_CYL.text}", "${near_R_AXIS.text}", "${near_R_V_A.text}", "${near_L_SPH.text}", "${near_L_CYL.text}", 
-      "${near_L_AXIS.text}", "${near_L_V_A.text}", "${L_P_D.text}", "${DR.text}", "${invoice_date.text}", "${review_date.text}")
-      ''');
+          INSERT INTO ClientOptometry 
+          (client_id, name, phone, dist_R_SPH, dist_R_CYL, dist_R_AXIS, dist_R_V_A, 
+          dist_L_SPH, dist_L_CYL, dist_L_AXIS, dist_L_V_A, near_R_SPH, 
+          near_R_CYL, near_R_AXIS, near_R_V_A, near_L_SPH, near_L_CYL, 
+          near_L_AXIS, near_L_V_A, L_P_D, DR, invoice_date, review_date)
+          VALUES 
+          ($clientId, "${name.text}", "${phone.text}", "${dist_R_SPH.text}", "${dist_R_CYL.text}", "${dist_R_AXIS.text}", "${dist_R_V_A.text}", 
+          "${dist_L_SPH.text}", "${dist_L_CYL.text}", "${dist_L_AXIS.text}", "${dist_L_V_A.text}", "${near_R_SPH.text}", 
+          "${near_R_CYL.text}", "${near_R_AXIS.text}", "${near_R_V_A.text}", "${near_L_SPH.text}", "${near_L_CYL.text}", 
+          "${near_L_AXIS.text}", "${near_L_V_A.text}", "${L_P_D.text}", "${DR.text}", "${invoice_date.text}", "${review_date.text}")
+        ''');
 
         if (response > 0) {
           // 🔹 جلب ID آخر فاتورة
@@ -186,11 +203,11 @@ class _NewInvoiceScreenState extends State<NewInvoiceScreen> {
           );
           int invoiceId = lastInvoice[0]['id'];
           int response = await sqlDb.insertData('''
-          INSERT INTO Clients
-          (client_name ,client_phone ,id_invoice ,type_invoice ,date_invoice ,date_reminder)
-          VALUES
-          ("${name.text}", "${phone.text}", $invoiceId, "Optometry" , "${DateTime.now().toIso8601String()}" , "${review_date.text}")
-          ''');
+            INSERT INTO Process
+            (client_name ,client_phone ,id_invoice ,type_invoice ,date_invoice ,date_reminder)
+            VALUES
+            ("${name.text}", "${phone.text}", $invoiceId, "Optometry" , "${DateTime.now().toIso8601String()}" , "${review_date.text}")
+            ''');
           if (response > 0) {
             // ✅ إضافة الحدث إلى التقويم
             Provider.of<EventProvider>(context, listen: false).addEvent(
@@ -232,15 +249,15 @@ class _NewInvoiceScreenState extends State<NewInvoiceScreen> {
         L_ADD.text = formatValue(L_ADD.text);
 
         int response = await sqlDb.insertData('''
-      INSERT INTO ClientPurchases 
-      (name, phone, frame_type, frame_model, lense_type, R_SPH, R_CYL, R_AXIS, R_ADD,
-      L_SPH, L_CYL, L_AXIS, L_ADD, total_price, paid_price, remaining_price, 
-      invoice_date, delvery_date)
-      VALUES 
-      ("${name.text}", "${phone.text}", "${frame_type.text}", "${frame_model.text}", "${lense_type.text}", "${R_SPH.text}", "${R_CYL.text}", "${R_AXIS.text}", 
-      "${R_ADD.text}", "${L_SPH.text}", "${L_CYL.text}", "${L_AXIS.text}", "${L_ADD.text}", 
-      "${total_price.text}", "${paid_price.text}", "${remaining_price.text}", "${invoice_date.text}", "${delvery_date.text}")
-      ''');
+          INSERT INTO ClientPurchases 
+          (client_id, name, phone, frame_type, frame_model, lense_type, R_SPH, R_CYL, R_AXIS, R_ADD,
+          L_SPH, L_CYL, L_AXIS, L_ADD, total_price, paid_price, remaining_price, 
+          invoice_date, delvery_date)
+          VALUES 
+          ($clientId, "${name.text}", "${phone.text}", "${frame_type.text}", "${frame_model.text}", "${lense_type.text}", "${R_SPH.text}", "${R_CYL.text}", "${R_AXIS.text}", 
+          "${R_ADD.text}", "${L_SPH.text}", "${L_CYL.text}", "${L_AXIS.text}", "${L_ADD.text}", 
+          "${total_price.text}", "${paid_price.text}", "${remaining_price.text}", "${invoice_date.text}", "${delvery_date.text}")
+        ''');
 
         if (response > 0) {
           // 🔹 جلب ID آخر فاتورة
@@ -249,11 +266,11 @@ class _NewInvoiceScreenState extends State<NewInvoiceScreen> {
           );
           int invoiceId = lastInvoice[0]['id'];
           int response = await sqlDb.insertData('''
-          INSERT INTO Clients
-          (client_name ,client_phone ,id_invoice ,type_invoice ,date_invoice ,date_reminder)
-          VALUES
-          ("${name.text}", "${phone.text}", $invoiceId, "Purchases" , "${DateTime.now().toIso8601String()}" , "${delvery_date.text}")
-          ''');
+            INSERT INTO Process
+            (client_name ,client_phone ,id_invoice ,type_invoice ,date_invoice ,date_reminder)
+            VALUES
+            ("${name.text}", "${phone.text}", $invoiceId, "Purchases" , "${DateTime.now().toIso8601String()}" , "${delvery_date.text}")
+            ''');
           if (response > 0) {
             // ✅ إضافة الحدث إلى التقويم
             Provider.of<EventProvider>(context, listen: false).addEvent(
@@ -276,6 +293,12 @@ class _NewInvoiceScreenState extends State<NewInvoiceScreen> {
         }
       }
     }
+    int pointsToAdd = isDefaultValue ? 15 : 25; // 5 للفحص، 10 للشراء
+    await sqlDb.updateData('''
+      UPDATE Clients
+      SET points = points + $pointsToAdd
+      WHERE id = $clientId
+    ''');
   }
 
   void onChanged() {
