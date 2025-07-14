@@ -17,6 +17,7 @@ class _DefaultSettingsScreenState extends State<DefaultSettingsScreen> {
   SqlDb sqlDb = SqlDb();
 
   List<Map<String, dynamic>> lenses = [];
+  List<Map<String, dynamic>> tasks = [];
   String? selectedLens;
 
   bool isEnable = false;
@@ -24,10 +25,13 @@ class _DefaultSettingsScreenState extends State<DefaultSettingsScreen> {
   TextEditingController optometryMessageController = TextEditingController();
   TextEditingController purchasesMessageController = TextEditingController();
   TextEditingController lensesController = TextEditingController();
+  TextEditingController tasksController = TextEditingController();
+
   @override
   void initState() {
     super.initState();
     loadLenses();
+    loadTasks();
     loadDefaultMessages();
   }
 
@@ -47,39 +51,35 @@ class _DefaultSettingsScreenState extends State<DefaultSettingsScreen> {
       purchasesMessageController.text = purchasesMessage[0]['messages'];
     }
 
-    setState(() {}); // لتحديث الواجهة
+    setState(() {});
   }
 
   Future<void> loadLenses() async {
     final response = await sqlDb.readData("SELECT name FROM Lenses");
-    setState(() {
-      lenses = List<Map<String, dynamic>>.from(response);
-      lensesController.text = lenses.map((e) => e['name']).join('\n');
-    });
+    lenses = List<Map<String, dynamic>>.from(response);
+    lensesController.text = lenses.map((e) => e['name']).join('\n');
+    setState(() {});
   }
 
-  void selectLens(String lens) {
-    setState(() {
-      selectedLens = lens;
-    });
+  Future<void> loadTasks() async {
+    final response = await sqlDb.readData("SELECT name, points FROM Tasks");
+    tasks = List<Map<String, dynamic>>.from(response);
+    tasksController.text = tasks
+        .map((e) => "${e['name']} - ${e['points']}")
+        .join('\n');
+    setState(() {});
   }
 
-  Future updateData() async {
-    int response = await sqlDb.updateData('''
-    UPDATE Messages
-    SET messages = CASE type_message
-                     WHEN 'Optometry' THEN '${optometryMessageController.text}' 
-                     WHEN 'Purchases' THEN '${purchasesMessageController.text}' 
-                     ELSE messages
-                   END
-    WHERE type_message IN ('Optometry', 'Purchases')
-''');
-
-    if (response > 0) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('تمت تعديل الاعداد الافتراضي بنجاح...')),
-      );
-    }
+  Future<void> updateData() async {
+    await sqlDb.updateData('''
+      UPDATE Messages
+      SET messages = CASE type_message
+                       WHEN 'Optometry' THEN '${optometryMessageController.text}'
+                       WHEN 'Purchases' THEN '${purchasesMessageController.text}'
+                       ELSE messages
+                     END
+      WHERE type_message IN ('Optometry', 'Purchases')
+    ''');
   }
 
   Future<void> updateLenses() async {
@@ -97,31 +97,60 @@ class _DefaultSettingsScreenState extends State<DefaultSettingsScreen> {
     }
   }
 
+  Future<void> updateTasks() async {
+    await sqlDb.deleteData("DELETE FROM Tasks");
+
+    List<String> lines = tasksController.text.split('\n');
+    for (var line in lines) {
+      if (line.trim().isEmpty) continue;
+      var parts = line.split('-');
+      if (parts.length == 2) {
+        String name = parts[0].trim();
+        int? points = int.tryParse(parts[1].trim());
+        if (points != null) {
+          await sqlDb.insertData(
+            "INSERT INTO Tasks (name, points) VALUES ('$name', $points)",
+          );
+        }
+      }
+    }
+  }
+
   Future<void> resetToDefault() async {
-    // حذف البيانات القديمة
     await sqlDb.deleteData("DELETE FROM Messages");
     await sqlDb.deleteData("DELETE FROM Lenses");
+    await sqlDb.deleteData("DELETE FROM Tasks");
 
-    // إدخال الرسائل الافتراضية
     await sqlDb.insertData('''
-    INSERT INTO Messages (messages, type_message)
-    VALUES 
-    ("موعد مراجعة فحص نظرك قد اقترب حفاظا على صحة عينيك يرجى زيارتنا...", "Optometry"),
-    ("نظارتك تم تجهيزها يرجى الحضور لاستلامها...", "Purchases")
-  ''');
+      INSERT INTO Messages (messages, type_message)
+      VALUES 
+      ("موعد مراجعة فحص نظرك قد اقترب حفاظا على صحة عينيك يرجى زيارتنا...", "Optometry"),
+      ("نظارتك تم تجهيزها يرجى الحضور لاستلامها...", "Purchases")
+    ''');
 
-    // إدخال العدسات الافتراضية
     await sqlDb.insertData('''
-    INSERT INTO Lenses (name)
-    VALUES 
-    ("WT"),
-    ("WT MC"),
-    ("PG X")
-  ''');
+      INSERT INTO Lenses (name)
+      VALUES 
+      ("WT"),
+      ("WT MC"),
+      ("PG X")
+    ''');
 
-    // تحديث الحقول في الواجهة
+    await sqlDb.insertData('''
+      INSERT INTO Tasks (name, points) VALUES
+      ("نظارة كاملة", 25),
+      ("عدسات طبية فقط", 10),
+      ("فريم فقط", 10),
+      ("نظارة قراءة", 5),
+      ("نظارة شمسية", 15),
+      ("عدسات الاصقة طبية", 15),
+      ("عدسات لاصقة زينة", 10),
+      ("محلول عدسات + بخاخ", 5)
+    ''');
+
     await loadDefaultMessages();
     await loadLenses();
+    await loadTasks();
 
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(
@@ -149,11 +178,11 @@ class _DefaultSettingsScreenState extends State<DefaultSettingsScreen> {
                     isEnable = !isEnable;
                     loadLenses();
                     loadDefaultMessages();
+                    loadTasks();
                     FocusScope.of(context).unfocus();
                   });
                 },
               ),
-
               Expanded(
                 child: Padding(
                   padding: const EdgeInsets.all(20.0),
@@ -191,7 +220,15 @@ class _DefaultSettingsScreenState extends State<DefaultSettingsScreen> {
                               isEnable: isEnable,
                               textDirection: TextDirection.ltr,
                             ),
-
+                            SizedBox(height: 20.h),
+                            InfoRichFieldWidget(
+                              textController: tasksController,
+                              text: 'قائمة المهام (عدِّل أو أضف أو احذف هنا)',
+                              width: 350.w,
+                              height: 250.h,
+                              isEnable: isEnable,
+                              textDirection: TextDirection.rtl,
+                            ),
                             SizedBox(height: 10.h),
                             isEnable == false
                                 ? ActionButtonWidget(
@@ -210,6 +247,7 @@ class _DefaultSettingsScreenState extends State<DefaultSettingsScreen> {
                                   onTap: () async {
                                     await updateData();
                                     await updateLenses();
+                                    await updateTasks();
                                     setState(() {
                                       isEnable = false;
                                       FocusScope.of(context).unfocus();

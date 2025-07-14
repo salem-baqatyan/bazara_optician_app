@@ -23,6 +23,7 @@ class _ClientProfileScreenState extends State<ClientProfileScreen>
   int purchasesCount = 0;
   List<Map> optometryInvoices = [];
   List<Map> purchasesInvoices = [];
+  List<Map> clientPoints = []; // ✅ بيانات نقاط العميل
 
   bool _visible = false;
   late AnimationController _controller;
@@ -49,6 +50,11 @@ class _ClientProfileScreenState extends State<ClientProfileScreen>
 
     purchasesInvoices = await sqlDb.readData('''
       SELECT * FROM ClientPurchases WHERE client_id = ${widget.clientId}
+    ''');
+
+    clientPoints = await sqlDb.readData('''
+      SELECT * FROM Points WHERE client_id = ${widget.clientId}
+      ORDER BY date DESC
     ''');
 
     setState(() {
@@ -97,9 +103,7 @@ class _ClientProfileScreenState extends State<ClientProfileScreen>
             child: Column(
               children: [
                 CustomAppBar(tital: "حساب العميل"),
-
                 const SizedBox(height: 5),
-
                 AnimatedOpacity(
                   opacity: _visible ? 1 : 0,
                   duration: const Duration(milliseconds: 600),
@@ -134,7 +138,6 @@ class _ClientProfileScreenState extends State<ClientProfileScreen>
                             ),
                           ),
                         ),
-                        //TODO: هنا زر ينقلك الى شاشة النقاط
                         Center(
                           child: Padding(
                             padding: const EdgeInsets.all(8.0),
@@ -147,15 +150,18 @@ class _ClientProfileScreenState extends State<ClientProfileScreen>
                                 Navigator.push(
                                   context,
                                   MaterialPageRoute(
-                                    builder: (_) => ClientPointsScreen(),
+                                    builder:
+                                        (_) => ClientPointsScreen(
+                                          clientId: client['id'],
+                                        ),
                                   ),
-                                );
+                                ).then((_) => loadData());
                               },
                             ),
                           ),
                         ),
 
-                        // 📊 بطاقتي عدد الفواتير
+                        // ✅ بطاقة إحصائية للفواتير (يمكنك حذفها إذا لم تعد بحاجة لها)
                         Row(
                           children: [
                             _buildStatCard(
@@ -188,21 +194,8 @@ class _ClientProfileScreenState extends State<ClientProfileScreen>
 
                         const SizedBox(height: 20),
 
-                        // 📋 فواتير الفحص
-                        _buildInvoicesSection(
-                          "فواتير فحص النظر",
-                          optometryInvoices,
-                          "review_date",
-                        ),
-
-                        const SizedBox(height: 10),
-
-                        // 🕶️ فواتير الشراء
-                        _buildInvoicesSection(
-                          "فواتير شراء النظارات",
-                          purchasesInvoices,
-                          "delvery_date",
-                        ),
+                        // ✅ تفاصيل نقاط العميل
+                        _buildPointsSection(),
                       ],
                     ),
                   ),
@@ -257,26 +250,37 @@ class _ClientProfileScreenState extends State<ClientProfileScreen>
     );
   }
 
-  Widget _buildInvoicesSection(String title, List<Map> data, String dateField) {
+  Widget _buildPointsSection() {
     return Card(
       elevation: 2,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       child: ExpansionTile(
-        title: Text(title, style: const TextStyle(fontWeight: FontWeight.bold)),
+        title: const Text(
+          "تفاصيل النقاط",
+          style: TextStyle(fontWeight: FontWeight.bold),
+        ),
         children:
-            data.isEmpty
+            clientPoints.isEmpty
                 ? [
                   const Padding(
                     padding: EdgeInsets.all(8),
-                    child: Text("لا توجد فواتير"),
+                    child: Text("لا توجد نقاط لهذا العميل"),
                   ),
                 ]
-                : data.map((invoice) {
+                : clientPoints.map((point) {
                   return ListTile(
-                    title: Text(
-                      "📅 التاريخ: ${invoice[dateField] ?? "غير متوفر"}",
+                    leading: const Icon(Icons.star, color: Colors.amber),
+                    title: Text(point['task_name']),
+                    subtitle: Text(
+                      "الكمية: ${point['quantity']} × ${point['points_per_item']}",
                     ),
-                    subtitle: Text("رقم الفاتورة: ${invoice['id']}"),
+                    trailing: Text(
+                      "=${point['total_points']} نقطة",
+                      style: const TextStyle(
+                        fontWeight: FontWeight.bold,
+                        color: Colors.green,
+                      ),
+                    ),
                   );
                 }).toList(),
       ),

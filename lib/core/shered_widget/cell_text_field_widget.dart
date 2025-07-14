@@ -49,16 +49,6 @@ class CellTextFieldWidget extends StatelessWidget {
       ),
       padding: EdgeInsets.all(7),
       child: TextFormField(
-        onChanged: (value) {
-          if (value.isNotEmpty) {
-            double decimalValue = double.tryParse(value) ?? 0.00;
-            controller.text = decimalValue.toStringAsFixed(2);
-            controller.selection = TextSelection.fromPosition(
-              TextPosition(offset: controller.text.length),
-            );
-            decimalValue.toStringAsFixed(2);
-          }
-        },
         controller: controller,
         textDirection: TextDirection.ltr,
         keyboardType: TextInputType.numberWithOptions(decimal: true),

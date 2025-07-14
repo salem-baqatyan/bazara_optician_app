@@ -26,27 +26,59 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
 
   Future<Map<String, dynamic>> fetchStatistics() async {
     try {
-      // أقرب 3 مواعيد تذكير
-      var now = DateTime.now().toIso8601String();
-      var reminderList = await sqlDb.readData('''
-  SELECT client_name, type_invoice, date_reminder
-  FROM Process
-  WHERE date_reminder IS NOT NULL AND date_reminder > "$now"
-  ORDER BY date_reminder ASC
-  LIMIT 3
-''');
+      // تحديد بداية اليوم (منتصف الليل) بصيغة yyyy-MM-dd
+      var today = DateTime.now();
+      var todayMidnight = DateTime(today.year, today.month, today.day);
 
-      // آخر زبون
+      // جلب كل التذكيرات (حتى التواريخ غير صحيحة سيتم معالجتها في Dart)
+      var allReminders = await sqlDb.readData('''
+      SELECT client_name, type_invoice, date_reminder
+      FROM Process
+      WHERE date_reminder IS NOT NULL
+    ''');
+
+      // تصفية التذكيرات التي لم تنتهِ (أي تاريخها >= اليوم)
+      List<Map<String, dynamic>> validReminders = [];
+
+      for (var reminder in allReminders) {
+        try {
+          String rawDate = (reminder['date_reminder'] as String).replaceAll(
+            '/',
+            '-',
+          );
+          DateTime parsedDate = DateTime.parse(rawDate);
+
+          if (!parsedDate.isBefore(todayMidnight)) {
+            validReminders.add(reminder);
+          }
+        } catch (e) {
+          print('خطأ في تحويل التاريخ: ${reminder['date_reminder']}');
+        }
+      }
+
+      // ترتيب حسب التاريخ وأخذ أول 3 فقط
+      validReminders.sort((a, b) {
+        DateTime aDate = DateTime.parse(
+          (a['date_reminder'] as String).replaceAll('/', '-'),
+        );
+        DateTime bDate = DateTime.parse(
+          (b['date_reminder'] as String).replaceAll('/', '-'),
+        );
+        return aDate.compareTo(bDate);
+      });
+
+      var reminderList = validReminders.take(3).toList();
+
+      // --- باقي الكود كما هو بدون تغيير كبير ---
+
       var lastClientList = await sqlDb.readData(
         'SELECT * FROM Process ORDER BY id DESC LIMIT 1',
       );
 
-      // عدد الزبائن بدون تكرار
       var uniqueClientsList = await sqlDb.readData(
         'SELECT DISTINCT client_name FROM Process',
       );
 
-      // أكثر زبون نشط (مع مراعاة التكرار)
       var activeClientsList = await sqlDb.readData('''
       SELECT client_name, client_phone, COUNT(*) as total
       FROM Process
@@ -54,12 +86,10 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
       ORDER BY total DESC
     ''');
 
-      // قيم افتراضية
       Map<String, dynamic>? activeClientData;
       int purchasesForActiveCount = 0;
       int optometryForActiveCount = 0;
 
-      // التحقق إذا كان هناك أكثر من زبون بنفس العدد الأعلى للفواتير
       if (activeClientsList.isNotEmpty) {
         int topCount = activeClientsList[0]['total'];
         int countWithTopTotal =
@@ -71,49 +101,48 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
           activeClientData = activeClientsList[0];
           String activePhone = activeClientData!['client_name'];
 
-          // عدد فواتير الشراء
           var purchasesCountList = await sqlDb.readData('''
           SELECT COUNT(*) as count FROM Process
           WHERE client_name = "$activePhone" AND type_invoice = "Purchases"
         ''');
+
           purchasesForActiveCount =
               (purchasesCountList.isNotEmpty &&
                       purchasesCountList[0]['count'] != null)
                   ? purchasesCountList[0]['count']
                   : 0;
 
-          // عدد فواتير الفحص
           var optometryCountList = await sqlDb.readData('''
           SELECT COUNT(*) as count FROM Process
           WHERE client_name = "$activePhone" AND type_invoice = "Optometry"
         ''');
+
           optometryForActiveCount =
               (optometryCountList.isNotEmpty &&
                       optometryCountList[0]['count'] != null)
                   ? optometryCountList[0]['count']
                   : 0;
         } else {
-          // لا يوجد زبون مميز كأكثر نشاطًا
           activeClientData = null;
         }
       }
 
-      // إجمالي عدد فواتير الشراء
       var totalPurchasesList = await sqlDb.readData('''
       SELECT COUNT(*) as count FROM Process
       WHERE type_invoice = "Purchases"
     ''');
+
       int totalPurchasesCount =
           (totalPurchasesList.isNotEmpty &&
                   totalPurchasesList[0]['count'] != null)
               ? totalPurchasesList[0]['count']
               : 0;
 
-      // إجمالي عدد فواتير الفحص
       var totalOptometryList = await sqlDb.readData('''
       SELECT COUNT(*) as count FROM Process
       WHERE type_invoice = "Optometry"
     ''');
+
       int totalOptometryCount =
           (totalOptometryList.isNotEmpty &&
                   totalOptometryList[0]['count'] != null)
@@ -122,11 +151,9 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
 
       return {
         'reminders': reminderList,
-
         'lastClient': lastClientList.isNotEmpty ? lastClientList[0] : null,
         'uniqueClientsCount': uniqueClientsList.length,
-        'activeClient':
-            activeClientData, // سيكون null إذا كان هناك تساوٍ بين الزبائن
+        'activeClient': activeClientData,
         'purchasesCount': purchasesForActiveCount,
         'optometryCount': optometryForActiveCount,
         'totalPurchases': totalPurchasesCount,
@@ -142,6 +169,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
         'optometryCount': 0,
         'totalPurchases': 0,
         'totalOptometry': 0,
+        'reminders': [],
       };
     }
   }

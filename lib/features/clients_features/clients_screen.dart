@@ -16,7 +16,7 @@ class _ClientsScreenState extends State<ClientsScreen> {
   SqlDb sqlDb = SqlDb();
   List<Map> clients = [];
 
-  Future<void> fetchClients() async {
+  Future<void> loadData() async {
     List<Map> response = await sqlDb.readData('SELECT * FROM Clients');
     setState(() {
       clients = response;
@@ -26,7 +26,7 @@ class _ClientsScreenState extends State<ClientsScreen> {
   @override
   void initState() {
     super.initState();
-    fetchClients();
+    loadData();
   }
 
   @override
@@ -93,7 +93,7 @@ class _ClientsScreenState extends State<ClientsScreen> {
                                           clientId: client['id'],
                                         ),
                                   ),
-                                );
+                                ).then((_) => loadData());
                               },
                             ),
                           );

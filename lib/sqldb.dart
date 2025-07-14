@@ -36,7 +36,21 @@ CREATE TABLE "Clients" (
   "id" INTEGER PRIMARY KEY AUTOINCREMENT,
   "name" TEXT,
   "phone" TEXT,
-  "points" INTEGER DEFAULT 0,
+  "points" INTEGER DEFAULT 0
+)
+''');
+
+    batch.execute('''
+-- جدول نقاط العميل
+CREATE TABLE "Points" (
+  "id" INTEGER PRIMARY KEY AUTOINCREMENT,
+  "client_id" INTEGER,
+  "task_name" TEXT,
+  "quantity" INTEGER,
+  "points_per_item" INTEGER,
+  "total_points" INTEGER,
+  "date" TEXT,
+  FOREIGN KEY ("client_id") REFERENCES Clients("id")
 )
 ''');
 
@@ -141,6 +155,15 @@ CREATE TABLE "Lenses" (
   "name" TEXT
 )
   ''');
+    batch.execute('''
+-- جدول أنواع المهمات
+CREATE TABLE "Tasks" (
+  "id" INTEGER PRIMARY KEY AUTOINCREMENT,
+  "name" TEXT,
+  "points" INTEGER
+)
+''');
+
     await batch.commit();
     debugPrint('✅ Create Database and Tables Done');
 
@@ -161,7 +184,19 @@ VALUES
 ("WT MC"),
 ("PG X")
   ''');
-    debugPrint('✅ Insert default lenses into Lenses table');
+    await db.rawInsert('''
+-- أنواع المهمات الافتراضية
+INSERT INTO Tasks (name, points) VALUES 
+("نظارة كاملة", 25),
+("عدسات طبية فقط", 10),
+("فريم فقط", 10),
+("نظارة قراءة", 5),
+("نظارة شمسية", 15),
+("عدسات الاصقة طبية", 15),
+("عدسات لاصقة زينة", 10),
+("محلول عدسات + بخاخ", 5)
+''');
+    debugPrint('✅ Insert default Tasks into tasks table');
   }
 
   Future<void> _onUpgrade(Database db, int oldVersion, int newVersion) async {}
