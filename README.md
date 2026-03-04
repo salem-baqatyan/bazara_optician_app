@@ -1,16 +1,84 @@
-# bazara_optician_app
+# Optician App - نظام إدارة عيادة ومحل بصريات 👓
 
-A new Flutter project.
+تطبيق احترافي متكامل مبني باستخدام إطار العمل **Flutter**، مصمم خصيصاً لخدمة أخصائيي البصريات ومحلات النظارات. يهدف التطبيق إلى رقمنة بيانات المرضى، وفحوصات النظر، وإدارة طلبيات العدسات والنظارات في منصة واحدة سهلة الاستخدام.
 
-## Getting Started
+## 🎯 الهدف من المشروع
 
-This project is a starting point for a Flutter application.
+تسهيل عملية تسجيل بيانات فحص النظر (Refraction) ومتابعة حالة المرضى والطلبات، بدلاً من السجلات الورقية التقليدية، مما يضمن دقة البيانات وسرعة الوصول إليها.
 
-A few resources to get you started if this is your first Flutter project:
+## ✨ المميزات الرئيسية (Core Features)
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
+### 1. إدارة بيانات المرضى (Patient Records)
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+* **السجل الرقمي:** تسجيل بيانات المريض الأساسية وتاريخه المرضي.
+* **البحث الذكي:** إمكانية البحث عن مريض بالاسم أو رقم الهاتف للوصول السريع لبياناته.
+
+### 2. نظام فحص النظر (Vision Testing Module)
+
+* **قياسات العدسات:** واجهة مخصصة لإدخال قياسات العين اليمنى (RE) والعين اليسرى (LE) بدقة عالية، تشمل:
+* الكرة (Sphere - SPH)
+* الأسطوانة (Cylinder - CYL)
+* المحور (Axis)
+* الإضافة (Addition - ADD) لمرضى القراءة.
+
+
+* **مسافة حدقة العين (PD):** تسجيل المسافة بين الحدقتين لضمان دقة تركيب العدسات.
+
+### 3. إدارة الطلبات والمبيعات (Order Management)
+
+* **اختيار الإطارات والعدسات:** نظام لتحديد نوع الإطار المختار ونوع العدسات المطلوبة.
+* **تتبع الحالة:** متابعة حالة الطلب (قيد التنفيذ، جاهز للتسليم، تم التسليم).
+
+### 4. واجهة المستخدم (UI/UX)
+
+* **Clean Design:** واجهة هادئة واحترافية تناسب بيئة العمل الطبية.
+* **استجابة عالية:** تصميم متوافق مع مختلف أحجام شاشات الأجهزة اللوحية والجوالة.
+
+## 🛠 التقنيات المستخدمة (Technical Stack)
+
+* **Flutter Framework:** لتطوير واجهة برمجية موحدة وعالية الأداء.
+* **State Management:** إدارة تدفق البيانات بين شاشات الفحص وطلبات الشراء.
+* **Form Validation:** نظام تدقيق للمدخلات الرقمية لضمان عدم إدخال قياسات طبية خاطئة.
+* **Local Data Persistence:** تخزين البيانات لضمان السرعة والعمل في بيئات العمل المختلفة.
+
+## 📂 هيكلية المشروع (Project Architecture)
+
+```text
+lib/
+├── models/        # نماذج بيانات المريض، الفحص، والطلبات
+├── views/         # شاشات الفحص، القائمة الرئيسية، وتفاصيل المرضى
+├── controllers/   # معالجة منطق إدخال البيانات وحساب القياسات
+├── widgets/       # مكونات الواجهة المخصصة (Custom Input Fields)
+└── utils/         # الثوابت والأدوات المساعدة
+
+```
+
+## 🚀 كيفية التشغيل (Installation & Setup)
+
+1. **استنساخ المستودع:**
+```bash
+git clone https://github.com/salem-baqatyan/optician_app.git
+
+```
+
+
+2. **تحميل التبعيات:**
+```bash
+flutter pub get
+
+```
+
+
+3. **تشغيل التطبيق:**
+```bash
+flutter run
+
+```
+
+
+
+## 📝 المخطط المستقبلي (Roadmap)
+
+* دعم الطباعة المباشرة لتقارير فحص النظر والوصفات الطبية.
+* نظام سحابي لمزامنة البيانات بين فروع المحل المختلفة.
+* إرسال رسائل SMS تلقائية للزبائن عند جاهزية نظاراتهم.
